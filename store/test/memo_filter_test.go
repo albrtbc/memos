@@ -72,6 +72,46 @@ func TestMemoFilterContentUnicodeCaseFold(t *testing.T) {
 	require.Len(t, memos, 1)
 }
 
+func TestMemoFilterContentMatchesAttachmentFilename(t *testing.T) {
+	t.Parallel()
+	tc := NewMemoFilterTestContext(t)
+	defer tc.Close()
+
+	// Memo A: content "Hello world", no attachment
+	tc.CreateMemo(NewMemoBuilder("memo-a", tc.User.ID).Content("Hello world"))
+
+	// Memo B: content "Empty note", attachment with filename "vacation-photo.jpg"
+	memoB := tc.CreateMemo(NewMemoBuilder("memo-b", tc.User.ID).Content("Empty note"))
+	tc.CreateAttachment(memoB.ID, NewAttachmentBuilder(tc.User.ID).Filename("vacation-photo.jpg").MimeType("image/jpeg"))
+
+	// Memo C: content "Unrelated memo", no attachment
+	tc.CreateMemo(NewMemoBuilder("memo-c", tc.User.ID).Content("Unrelated memo"))
+
+	// "vacation" matches only memo B (via attachment filename)
+	memos := tc.ListWithFilter(`content.contains("vacation")`)
+	require.Len(t, memos, 1)
+	require.Equal(t, "Empty note", memos[0].Content)
+
+	// "Hello" matches only memo A (via content)
+	memos = tc.ListWithFilter(`content.contains("Hello")`)
+	require.Len(t, memos, 1)
+	require.Equal(t, "Hello world", memos[0].Content)
+
+	// "world" matches only memo A (via content, not attachment)
+	memos = tc.ListWithFilter(`content.contains("world")`)
+	require.Len(t, memos, 1)
+	require.Equal(t, "Hello world", memos[0].Content)
+
+	// "photo" matches only memo B (via attachment filename)
+	memos = tc.ListWithFilter(`content.contains("photo")`)
+	require.Len(t, memos, 1)
+	require.Equal(t, "Empty note", memos[0].Content)
+
+	// "nonexistent" matches nothing
+	memos = tc.ListWithFilter(`content.contains("nonexistent")`)
+	require.Len(t, memos, 0)
+}
+
 func TestMemoFilterContentCaseSensitivity(t *testing.T) {
 	t.Parallel()
 	tc := NewMemoFilterTestContext(t)

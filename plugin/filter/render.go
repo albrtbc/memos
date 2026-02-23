@@ -453,19 +453,44 @@ func (r *renderer) renderContainsCondition(cond *ContainsCondition) (renderResul
 	}
 	column := field.columnExpr(r.dialect)
 	arg := fmt.Sprintf("%%%s%%", cond.Value)
+	var contentSQL string
 	switch r.dialect {
 	case DialectSQLite:
 		// Use custom Unicode-aware case folding function for case-insensitive comparison.
 		// This overcomes SQLite's ASCII-only LOWER() limitation.
-		sql := fmt.Sprintf("memos_unicode_lower(%s) LIKE memos_unicode_lower(%s)", column, r.addArg(arg))
-		return renderResult{sql: sql}, nil
+		contentSQL = fmt.Sprintf("memos_unicode_lower(%s) LIKE memos_unicode_lower(%s)", column, r.addArg(arg))
 	case DialectPostgres:
-		sql := fmt.Sprintf("%s ILIKE %s", column, r.addArg(arg))
-		return renderResult{sql: sql}, nil
+		contentSQL = fmt.Sprintf("%s ILIKE %s", column, r.addArg(arg))
 	default:
-		sql := fmt.Sprintf("%s LIKE %s", column, r.addArg(arg))
-		return renderResult{sql: sql}, nil
+		contentSQL = fmt.Sprintf("%s LIKE %s", column, r.addArg(arg))
 	}
+
+	// When searching memo content, also match memos that have attachments
+	// with filenames containing the search term.
+	if r.schema.Name == "memo" && cond.Field == "content" {
+		attachArg := fmt.Sprintf("%%%s%%", cond.Value)
+		var existsSQL string
+		switch r.dialect {
+		case DialectSQLite:
+			existsSQL = fmt.Sprintf(
+				"EXISTS (SELECT 1 FROM `attachment` WHERE `attachment`.`memo_id` = `memo`.`id` AND memos_unicode_lower(`attachment`.`filename`) LIKE memos_unicode_lower(%s))",
+				r.addArg(attachArg),
+			)
+		case DialectPostgres:
+			existsSQL = fmt.Sprintf(
+				"EXISTS (SELECT 1 FROM attachment WHERE attachment.memo_id = memo.id AND attachment.filename ILIKE %s)",
+				r.addArg(attachArg),
+			)
+		default:
+			existsSQL = fmt.Sprintf(
+				"EXISTS (SELECT 1 FROM `attachment` WHERE `attachment`.`memo_id` = `memo`.`id` AND `attachment`.`filename` LIKE %s)",
+				r.addArg(attachArg),
+			)
+		}
+		return renderResult{sql: fmt.Sprintf("(%s OR %s)", contentSQL, existsSQL)}, nil
+	}
+
+	return renderResult{sql: contentSQL}, nil
 }
 
 func (r *renderer) renderListComprehension(cond *ListComprehensionCondition) (renderResult, error) {

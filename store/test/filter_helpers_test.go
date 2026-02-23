@@ -164,6 +164,14 @@ func (tc *MemoFilterTestContext) CreateMemo(b *MemoBuilder) *store.Memo {
 	return memo
 }
 
+// CreateAttachment creates an attachment linked to a memo.
+func (tc *MemoFilterTestContext) CreateAttachment(memoID int32, b *AttachmentBuilder) *store.Attachment {
+	b.MemoID(&memoID)
+	attachment, err := tc.Store.CreateAttachment(tc.Ctx, b.Build())
+	require.NoError(tc.T, err)
+	return attachment
+}
+
 // PinMemo pins a memo by ID.
 func (tc *MemoFilterTestContext) PinMemo(memoID int32) {
 	err := tc.Store.UpdateMemo(tc.Ctx, &store.UpdateMemo{
