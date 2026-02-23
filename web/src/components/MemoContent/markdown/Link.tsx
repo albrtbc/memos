@@ -62,6 +62,65 @@ function TwitterEmbed({ tweetId }: { tweetId: string }) {
   return <div ref={ref} className="flex justify-center" />;
 }
 
+// --- Reddit ---
+
+const REDDIT_RE = /^https?:\/\/(?:www\.)?reddit\.com\/r\/\w+\/comments\/\w+/;
+
+function isRedditPost(url: string): boolean {
+  return REDDIT_RE.test(url);
+}
+
+let redditLoadPromise: Promise<void> | null = null;
+
+function loadRedditWidgets(): Promise<void> {
+  if (redditLoadPromise) return redditLoadPromise;
+  redditLoadPromise = new Promise<void>((resolve) => {
+    const existing = document.querySelector('script[src*="embed.reddit.com/widgets.js"]');
+    if (existing) {
+      resolve();
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://embed.reddit.com/widgets.js";
+    script.async = true;
+    script.charset = "UTF-8";
+    script.onload = () => resolve();
+    document.head.appendChild(script);
+  });
+  return redditLoadPromise;
+}
+
+function RedditEmbed({ url }: { url: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadRedditWidgets().then(() => {
+      if (!cancelled && ref.current) {
+        ref.current.innerHTML = "";
+        const blockquote = document.createElement("blockquote");
+        blockquote.className = "reddit-embed-bq";
+        blockquote.setAttribute("data-embed-height", "500");
+        const link = document.createElement("a");
+        link.href = url;
+        blockquote.appendChild(link);
+        ref.current.appendChild(blockquote);
+
+        // Re-trigger Reddit's widget script to process the new blockquote
+        const script = document.createElement("script");
+        script.src = "https://embed.reddit.com/widgets.js";
+        script.async = true;
+        ref.current.appendChild(script);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [url]);
+
+  return <div ref={ref} className="flex justify-center" />;
+}
+
 // --- Helpers ---
 
 function isBarePastedLink(href: string, children: React.ReactNode): boolean {
@@ -77,7 +136,7 @@ function isBarePastedLink(href: string, children: React.ReactNode): boolean {
 /**
  * Link component for external links
  * Opens in new tab with security attributes
- * Auto-embeds YouTube and Twitter/X URLs when pasted as bare links
+ * Auto-embeds YouTube, Twitter/X, and Reddit URLs when pasted as bare links
  */
 export const Link = ({ children, className, href, node: _node, ...props }: LinkProps) => {
   if (href && isBarePastedLink(href, children)) {
@@ -98,6 +157,10 @@ export const Link = ({ children, className, href, node: _node, ...props }: LinkP
     const tweetId = getTwitterTweetId(href);
     if (tweetId) {
       return <TwitterEmbed tweetId={tweetId} />;
+    }
+
+    if (isRedditPost(href)) {
+      return <RedditEmbed url={href} />;
     }
   }
 
