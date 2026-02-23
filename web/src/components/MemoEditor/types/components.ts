@@ -12,6 +12,8 @@ export interface MemoEditorProps {
   memo?: Memo;
   parentMemoName?: string;
   autoFocus?: boolean;
+  /** When true, this editor consumes files from the global drag-and-drop context. */
+  listenForGlobalDrop?: boolean;
   onConfirm?: (memoName: string) => void;
   onCancel?: () => void;
 }

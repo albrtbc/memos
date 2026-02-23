@@ -1,14 +1,23 @@
 import { useEffect, useMemo } from "react";
 import { Outlet, useLocation, useSearchParams } from "react-router-dom";
 import usePrevious from "react-use/lib/usePrevious";
+import GlobalDropOverlay from "@/components/GlobalDropOverlay";
 import Navigation from "@/components/Navigation";
+import { GlobalDropProvider, useGlobalDropContext } from "@/contexts/GlobalDropContext";
 import { useMemoFilterContext } from "@/contexts/MemoFilterContext";
 import useCurrentUser from "@/hooks/useCurrentUser";
 import useMediaQuery from "@/hooks/useMediaQuery";
+import useNavigateTo from "@/hooks/useNavigateTo";
 import { cn } from "@/lib/utils";
 import { redirectOnAuthFailure } from "@/utils/auth-redirect";
 
-const RootLayout = () => {
+const RootLayout = () => (
+  <GlobalDropProvider>
+    <RootLayoutInner />
+  </GlobalDropProvider>
+);
+
+const RootLayoutInner = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const sm = useMediaQuery("sm");
@@ -16,6 +25,8 @@ const RootLayout = () => {
   const { removeFilter } = useMemoFilterContext();
   const pathname = useMemo(() => location.pathname, [location.pathname]);
   const prevPathname = usePrevious(pathname);
+  const navigateTo = useNavigateTo();
+  const { pendingFiles } = useGlobalDropContext();
 
   useEffect(() => {
     if (!currentUser) {
@@ -30,8 +41,16 @@ const RootLayout = () => {
     }
   }, [prevPathname, pathname, searchParams, removeFilter]);
 
+  // Navigate to home when files are dropped on a non-home page
+  useEffect(() => {
+    if (pendingFiles.length > 0 && pathname !== "/") {
+      navigateTo("/");
+    }
+  }, [pendingFiles, pathname, navigateTo]);
+
   return (
     <div className="w-full min-h-full flex flex-row justify-center items-start sm:pl-16">
+      <GlobalDropOverlay />
       {sm && (
         <div
           className={cn(

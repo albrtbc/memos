@@ -3,6 +3,7 @@ import { useRef } from "react";
 import { toast } from "react-hot-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import useCurrentUser from "@/hooks/useCurrentUser";
+import { useGlobalDropConsumer } from "@/hooks/useGlobalDropConsumer";
 import { memoKeys } from "@/hooks/useMemoQueries";
 import { userKeys } from "@/hooks/useUserQueries";
 import { handleError } from "@/lib/error";
@@ -30,6 +31,7 @@ const MemoEditorImpl: React.FC<MemoEditorProps> = ({
   parentMemoName,
   autoFocus,
   placeholder,
+  listenForGlobalDrop,
   onConfirm,
   onCancel,
 }) => {
@@ -38,6 +40,8 @@ const MemoEditorImpl: React.FC<MemoEditorProps> = ({
   const currentUser = useCurrentUser();
   const editorRef = useRef<EditorRefActions>(null);
   const { state, actions, dispatch } = useEditorContext();
+
+  useGlobalDropConsumer(!!listenForGlobalDrop, editorRef, dispatch, actions.addLocalFile);
   const { userGeneralSetting } = useAuth();
 
   const memoName = memo?.name;

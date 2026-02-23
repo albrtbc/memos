@@ -125,7 +125,9 @@
     "no-changes-detected": "No changes detected",
     "focus-mode": "Focus Mode",
     "exit-focus-mode": "Exit Focus Mode",
-    "slash-commands": "Type `/` for commands"
+    "slash-commands": "Type `/` for commands",
+    "drop-files-to-create-memo": "Drop files to create a memo",
+    "drop-files-subtitle": "Files will be attached to a new memo"
   },
   "filters": {
     "has-code": "hasCode",
