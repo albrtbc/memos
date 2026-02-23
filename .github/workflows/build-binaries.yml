@@ -5,6 +5,11 @@ name: Build Binaries
 on:
   release:
     types: [published]
+  workflow_call:
+    inputs:
+      tag_name:
+        type: string
+        required: false
   workflow_dispatch:
 
 # Environment variables for build configuration
@@ -29,22 +34,28 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
         with:
+          ref: ${{ inputs.tag_name || github.ref }}
           fetch-depth: 0  # Full history for git describe
 
       - name: Extract version
         id: version
         run: |
-          # Try to get version from git tag
-          TAG=$(git describe --tags --exact-match 2>/dev/null || echo "")
-          if [ -n "$TAG" ]; then
+          # Use input tag if provided (workflow_call), otherwise detect
+          if [ -n "${{ inputs.tag_name }}" ]; then
+            TAG="${{ inputs.tag_name }}"
             echo "version=${TAG#v}" >> $GITHUB_OUTPUT
-            echo "Version from tag: ${TAG#v}"
+            echo "Version from input: ${TAG#v}"
           else
-            # Use branch name + short SHA
-            BRANCH="${GITHUB_REF_NAME//\//-}"
-            SHORT_SHA="${GITHUB_SHA:0:7}"
-            echo "version=${BRANCH}-${SHORT_SHA}" >> $GITHUB_OUTPUT
-            echo "Version from branch: ${BRANCH}-${SHORT_SHA}"
+            TAG=$(git describe --tags --exact-match 2>/dev/null || echo "")
+            if [ -n "$TAG" ]; then
+              echo "version=${TAG#v}" >> $GITHUB_OUTPUT
+              echo "Version from tag: ${TAG#v}"
+            else
+              BRANCH="${GITHUB_REF_NAME//\//-}"
+              SHORT_SHA="${GITHUB_SHA:0:7}"
+              echo "version=${BRANCH}-${SHORT_SHA}" >> $GITHUB_OUTPUT
+              echo "Version from branch: ${BRANCH}-${SHORT_SHA}"
+            fi
           fi
 
   # Job 2: Build frontend assets
@@ -212,7 +223,7 @@ jobs:
   release:
     name: Upload Release Assets
     needs: build-binaries
-    if: github.event_name == 'release'
+    if: github.event_name == 'release' || inputs.tag_name != ''
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -227,5 +238,6 @@ jobs:
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ inputs.tag_name || github.ref_name }}
           files: artifacts/*
 
