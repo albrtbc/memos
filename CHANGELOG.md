@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.28.2](https://github.com/albrtbc/memos/compare/v0.28.1...v0.28.2) (2026-02-23)
+
+
+### Bug Fixes
+
+* invalidate memo detail cache after editing from detail page ([a01f6ba](https://github.com/albrtbc/memos/commit/a01f6ba3bcccb68558f1b335d550496e5ab4eef4))
+
 ## [0.28.1](https://github.com/albrtbc/memos/compare/v0.28.0...v0.28.1) (2026-02-23)
 
 
