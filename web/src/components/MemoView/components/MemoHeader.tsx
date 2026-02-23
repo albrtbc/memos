@@ -1,8 +1,9 @@
 import { timestampDate } from "@bufbuild/protobuf/wkt";
-import { BookmarkIcon, MessageCircleMoreIcon } from "lucide-react";
-import { useState } from "react";
+import { BookmarkIcon, BookmarkPlusIcon, Edit3Icon, MessageCircleMoreIcon } from "lucide-react";
+import { useCallback, useState } from "react";
 import { Link } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useUpdateMemo } from "@/hooks/useMemoQueries";
 import i18n from "@/i18n";
 import { cn } from "@/lib/utils";
 import { Visibility } from "@/types/proto/api/v1/memo_service_pb";
@@ -22,6 +23,19 @@ const MemoHeader: React.FC<MemoHeaderProps> = ({ showCreator, showVisibility, sh
 
   const { memo, creator, currentUser, parentPage, isArchived, readonly } = useMemoViewContext();
   const { isInMemoDetailPage, commentAmount, relativeTimeFormat } = useMemoViewDerived();
+  const { mutateAsync: updateMemo } = useUpdateMemo();
+  const isComment = Boolean(memo.parent);
+
+  const handleTogglePin = useCallback(async () => {
+    try {
+      await updateMemo({
+        update: { name: memo.name, pinned: !memo.pinned },
+        updateMask: ["pinned"],
+      });
+    } catch {
+      // do nothing
+    }
+  }, [memo.name, memo.pinned, updateMemo]);
 
   const displayTime = isArchived ? (
     (memo.displayTime ? timestampDate(memo.displayTime) : undefined)?.toLocaleString(i18n.language)
@@ -50,6 +64,33 @@ const MemoHeader: React.FC<MemoHeaderProps> = ({ showCreator, showVisibility, sh
             memo={memo}
             onOpenChange={setReactionSelectorOpen}
           />
+        )}
+
+        {!readonly && !isArchived && (
+          <>
+            <button
+              type="button"
+              className={cn(
+                "hidden sm:group-hover:flex justify-center items-center rounded-md hover:opacity-80 cursor-pointer",
+                reactionSelectorOpen && "flex!",
+              )}
+              onClick={onEdit}
+            >
+              <Edit3Icon className="w-4 h-4 text-muted-foreground" />
+            </button>
+            {!isComment && !memo.pinned && (
+              <button
+                type="button"
+                className={cn(
+                  "hidden sm:group-hover:flex justify-center items-center rounded-md hover:opacity-80 cursor-pointer",
+                  reactionSelectorOpen && "flex!",
+                )}
+                onClick={handleTogglePin}
+              >
+                <BookmarkPlusIcon className="w-4 h-4 text-muted-foreground" />
+              </button>
+            )}
+          </>
         )}
 
         {!isInMemoDetailPage && commentAmount > 0 && (

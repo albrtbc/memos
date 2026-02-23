@@ -1,10 +1,7 @@
 import {
   ArchiveIcon,
   ArchiveRestoreIcon,
-  BookmarkMinusIcon,
-  BookmarkPlusIcon,
   CopyIcon,
-  Edit3Icon,
   FileTextIcon,
   LinkIcon,
   MoreVerticalIcon,
@@ -61,22 +58,6 @@ const MemoActionMenu = (props: MemoActionMenuProps) => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" sideOffset={2}>
-        {/* Edit actions (non-readonly, non-archived) */}
-        {!readonly && !isArchived && (
-          <>
-            {!isComment && (
-              <DropdownMenuItem onClick={handleTogglePinMemoBtnClick}>
-                {memo.pinned ? <BookmarkMinusIcon className="w-4 h-auto" /> : <BookmarkPlusIcon className="w-4 h-auto" />}
-                {memo.pinned ? t("common.unpin") : t("common.pin")}
-              </DropdownMenuItem>
-            )}
-            <DropdownMenuItem onClick={handleEditMemoClick}>
-              <Edit3Icon className="w-4 h-auto" />
-              {t("common.edit")}
-            </DropdownMenuItem>
-          </>
-        )}
-
         {/* Copy submenu (non-archived) */}
         {!isArchived && (
           <DropdownMenuSub>
