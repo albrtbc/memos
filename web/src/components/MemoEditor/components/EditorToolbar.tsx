@@ -7,7 +7,7 @@ import InsertMenu from "../Toolbar/InsertMenu";
 import VisibilitySelector from "../Toolbar/VisibilitySelector";
 import type { EditorToolbarProps } from "../types";
 
-export const EditorToolbar: FC<EditorToolbarProps> = ({ onSave, onCancel, memoName }) => {
+export const EditorToolbar: FC<EditorToolbarProps> = ({ editorRef, onSave, onCancel, memoName }) => {
   const t = useTranslate();
   const { state, actions, dispatch } = useEditorContext();
   const { valid } = validationService.canSave(state);
@@ -30,6 +30,7 @@ export const EditorToolbar: FC<EditorToolbarProps> = ({ onSave, onCancel, memoNa
     <div className="w-full flex flex-row justify-between items-center mb-2">
       <div className="flex flex-row justify-start items-center">
         <InsertMenu
+          editorRef={editorRef}
           isUploading={state.ui.isLoading.uploading}
           location={state.metadata.location}
           onLocationChange={handleLocationChange}

@@ -24,6 +24,7 @@ export interface EditorContentProps {
 }
 
 export interface EditorToolbarProps {
+  editorRef: React.RefObject<EditorRefActions>;
   onSave: () => void;
   onCancel?: () => void;
   memoName?: string;
@@ -67,6 +68,7 @@ export interface LocationDialogProps {
 }
 
 export interface InsertMenuProps {
+  editorRef: React.RefObject<EditorRefActions>;
   isUploading?: boolean;
   location?: Location;
   onLocationChange: (location?: Location) => void;

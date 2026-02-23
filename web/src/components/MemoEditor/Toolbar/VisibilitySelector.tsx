@@ -1,4 +1,4 @@
-import { CheckIcon, ChevronDownIcon } from "lucide-react";
+import { CheckIcon } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import VisibilityIcon from "@/components/VisibilityIcon";
 import { Visibility } from "@/types/proto/api/v1/memo_service_pb";
@@ -20,10 +20,8 @@ const VisibilitySelector = (props: VisibilitySelectorProps) => {
   return (
     <DropdownMenu onOpenChange={props.onOpenChange}>
       <DropdownMenuTrigger asChild>
-        <button className="inline-flex items-center px-2 text-sm text-muted-foreground opacity-80 hover:opacity-100 transition-colors">
-          <VisibilityIcon visibility={value} className="opacity-60 mr-1.5" />
-          <span>{currentLabel}</span>
-          <ChevronDownIcon className="ml-0.5 w-4 h-4 opacity-60" />
+        <button className="inline-flex items-center justify-center h-8 w-8 text-muted-foreground opacity-80 hover:opacity-100 transition-colors rounded-md hover:bg-accent" title={currentLabel}>
+          <VisibilityIcon visibility={value} className="size-4" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
