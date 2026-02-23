@@ -1,5 +1,5 @@
 import { SearchIcon } from "lucide-react";
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useMemoFilterContext } from "@/contexts/MemoFilterContext";
 import { cn } from "@/lib/utils";
 import { useTranslate } from "@/utils/i18n";
@@ -7,7 +7,7 @@ import MemoDisplaySettingMenu from "./MemoDisplaySettingMenu";
 
 const SearchBar = () => {
   const t = useTranslate();
-  const { addFilter } = useMemoFilterContext();
+  const { addFilter, clearAllFilters, hasActiveFilters } = useMemoFilterContext();
   const [queryText, setQueryText] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -31,6 +31,38 @@ const SearchBar = () => {
       }
     }
   };
+
+  const handleGlobalKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+
+      // Skip if inside a dialog or textarea.
+      if (target.closest('[role="dialog"]') || target.tagName === "TEXTAREA") {
+        return;
+      }
+
+      if (e.key === "Escape") {
+        if (inputRef.current === document.activeElement && queryText !== "") {
+          setQueryText("");
+        } else if (hasActiveFilters) {
+          clearAllFilters();
+          inputRef.current?.blur();
+        }
+        return;
+      }
+
+      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+        e.preventDefault();
+        inputRef.current?.focus();
+      }
+    },
+    [queryText, hasActiveFilters, clearAllFilters],
+  );
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleGlobalKeyDown);
+    return () => document.removeEventListener("keydown", handleGlobalKeyDown);
+  }, [handleGlobalKeyDown]);
 
   return (
     <div className="relative w-full h-auto flex flex-row justify-start items-center">

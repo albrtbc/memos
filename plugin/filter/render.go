@@ -446,35 +446,49 @@ func (r *renderer) renderScalarInCondition(field Field, values []ValueExpr) (ren
 	}, nil
 }
 
+// globToLikePattern translates a user-facing glob pattern to a SQL LIKE pattern.
+// It escapes literal SQL LIKE wildcards (% and _) with backslash, then
+// converts glob * to SQL %.
+func globToLikePattern(value string) string {
+	// First escape SQL LIKE metacharacters the user didn't intend.
+	value = strings.ReplaceAll(value, `\`, `\\`)
+	value = strings.ReplaceAll(value, `%`, `\%`)
+	value = strings.ReplaceAll(value, `_`, `\_`)
+	// Then translate glob wildcard to SQL LIKE wildcard.
+	value = strings.ReplaceAll(value, `*`, `%`)
+	return value
+}
+
 func (r *renderer) renderContainsCondition(cond *ContainsCondition) (renderResult, error) {
 	field, ok := r.schema.Field(cond.Field)
 	if !ok {
 		return renderResult{}, errors.Errorf("unknown field %q", cond.Field)
 	}
 	column := field.columnExpr(r.dialect)
-	arg := fmt.Sprintf("%%%s%%", cond.Value)
+	arg := fmt.Sprintf("%%%s%%", globToLikePattern(cond.Value))
+	escapeClause := r.likeEscapeClause()
 	var contentSQL string
 	switch r.dialect {
 	case DialectSQLite:
 		// Use custom Unicode-aware case folding function for case-insensitive comparison.
 		// This overcomes SQLite's ASCII-only LOWER() limitation.
-		contentSQL = fmt.Sprintf("memos_unicode_lower(%s) LIKE memos_unicode_lower(%s)", column, r.addArg(arg))
+		contentSQL = fmt.Sprintf("memos_unicode_lower(%s) LIKE memos_unicode_lower(%s)%s", column, r.addArg(arg), escapeClause)
 	case DialectPostgres:
 		contentSQL = fmt.Sprintf("%s ILIKE %s", column, r.addArg(arg))
 	default:
-		contentSQL = fmt.Sprintf("%s LIKE %s", column, r.addArg(arg))
+		contentSQL = fmt.Sprintf("%s LIKE %s%s", column, r.addArg(arg), escapeClause)
 	}
 
 	// When searching memo content, also match memos that have attachments
 	// with filenames containing the search term.
 	if r.schema.Name == "memo" && cond.Field == "content" {
-		attachArg := fmt.Sprintf("%%%s%%", cond.Value)
+		attachArg := fmt.Sprintf("%%%s%%", globToLikePattern(cond.Value))
 		var existsSQL string
 		switch r.dialect {
 		case DialectSQLite:
 			existsSQL = fmt.Sprintf(
-				"EXISTS (SELECT 1 FROM `attachment` WHERE `attachment`.`memo_id` = `memo`.`id` AND memos_unicode_lower(`attachment`.`filename`) LIKE memos_unicode_lower(%s))",
-				r.addArg(attachArg),
+				"EXISTS (SELECT 1 FROM `attachment` WHERE `attachment`.`memo_id` = `memo`.`id` AND memos_unicode_lower(`attachment`.`filename`) LIKE memos_unicode_lower(%s)%s)",
+				r.addArg(attachArg), escapeClause,
 			)
 		case DialectPostgres:
 			existsSQL = fmt.Sprintf(
@@ -483,14 +497,26 @@ func (r *renderer) renderContainsCondition(cond *ContainsCondition) (renderResul
 			)
 		default:
 			existsSQL = fmt.Sprintf(
-				"EXISTS (SELECT 1 FROM `attachment` WHERE `attachment`.`memo_id` = `memo`.`id` AND `attachment`.`filename` LIKE %s)",
-				r.addArg(attachArg),
+				"EXISTS (SELECT 1 FROM `attachment` WHERE `attachment`.`memo_id` = `memo`.`id` AND `attachment`.`filename` LIKE %s%s)",
+				r.addArg(attachArg), escapeClause,
 			)
 		}
 		return renderResult{sql: fmt.Sprintf("(%s OR %s)", contentSQL, existsSQL)}, nil
 	}
 
 	return renderResult{sql: contentSQL}, nil
+}
+
+// likeEscapeClause returns the ESCAPE clause needed for LIKE patterns
+// that use backslash escaping. PostgreSQL's ILIKE treats backslash as
+// escape by default, so no clause is needed there.
+func (r *renderer) likeEscapeClause() string {
+	switch r.dialect {
+	case DialectSQLite, DialectMySQL:
+		return " ESCAPE '\\'"
+	default:
+		return ""
+	}
 }
 
 func (r *renderer) renderListComprehension(cond *ListComprehensionCondition) (renderResult, error) {
