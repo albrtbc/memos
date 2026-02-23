@@ -1,111 +1,89 @@
-# Memos
+# Memos (Custom Fork)
 
 <img align="right" height="96px" src="https://raw.githubusercontent.com/usememos/.github/refs/heads/main/assets/logo-rounded.png" alt="Memos" />
 
-An open-source, self-hosted note-taking service. Your thoughts, your data, your control — no tracking, no ads, no subscription fees.
+A custom fork of [usememos/memos](https://github.com/usememos/memos) — an open-source, self-hosted note-taking service. Forked from **v0.26.2** with additional features, bug fixes, and UX improvements.
 
-[![Home](https://img.shields.io/badge/🏠-usememos.com-blue?style=flat-square)](https://usememos.com)
-[![Live Demo](https://img.shields.io/badge/✨-Try%20Demo-orange?style=flat-square)](https://demo.usememos.com/)
-[![Docs](https://img.shields.io/badge/📚-Documentation-green?style=flat-square)](https://usememos.com/docs)
-[![Discord](https://img.shields.io/badge/💬-Discord-5865f2?style=flat-square&logo=discord&logoColor=white)](https://discord.gg/tfPJa4UmAv)
-[![Docker Pulls](https://img.shields.io/docker/pulls/neosmemo/memos?style=flat-square&logo=docker)](https://hub.docker.com/r/neosmemo/memos)
+[![Upstream](https://img.shields.io/badge/upstream-usememos%2Fmemos-blue?style=flat-square)](https://github.com/usememos/memos)
+[![Base Version](https://img.shields.io/badge/base-v0.26.2-green?style=flat-square)](https://github.com/usememos/memos/releases/tag/v0.26.2)
 
-<img src="https://raw.githubusercontent.com/usememos/.github/refs/heads/main/assets/demo.png" alt="Memos Demo Screenshot" height="512" />
+## Changes from upstream
 
-### 💎 Featured Sponsors
+### Features
 
-[**Warp** — The AI-powered terminal built for speed and collaboration](https://go.warp.dev/memos)
+- **Flat editor toolbar** — All insert actions (Upload, Link Memo, Location, Todo, Code, Link, Table, Focus Mode) shown as inline icon buttons instead of a nested dropdown menu. Table button includes a column-count picker popover.
+- **Search wildcards** — Support for wildcard patterns in search, Escape key to clear filters, and Ctrl+K to focus the search bar.
+- **Search by attachment filename** — Find memos by searching for attached file names via `content.contains()`.
+- **Global drag-and-drop upload** — Drag files anywhere onto the page to upload and attach them to the current memo.
 
-<a href="https://go.warp.dev/memos" target="_blank" rel="noopener">
-  <img src="https://raw.githubusercontent.com/warpdotdev/brand-assets/main/Github/Sponsor/Warp-Github-LG-02.png" alt="Warp - The AI-powered terminal built for speed and collaboration" width="512" />
-</a>
+### Bug fixes
 
-<p></p>
+- Fix spurious logout on page reload with expired access token
+- Fix explore page showing private tags and improve stats hook
+- Fix MonthNavigator month label not reacting to language changes
+- Allow memo/attachment deletion when local file is missing
+- Improve MemoEditor layout and timestamp popover styling
+- Remediate SSRF vulnerability in webhook dispatcher
+- Fix truncating memo batch attachments
+- Visibility selector shows icon-only to prevent toolbar overflow
 
-[**TestMu AI** - The world’s first full-stack Agentic AI Quality Engineering platform](https://www.testmuai.com/?utm_medium=sponsor&utm_source=memos)
-  
-<a href="https://www.testmuai.com/?utm_medium=sponsor&utm_source=memos" target="_blank" rel="noopener">
-  <img src="https://usememos.com/sponsors/testmu.svg" alt="TestMu AI" height="36" />
-</a>
+### Other
 
-<p></p>
+- Full project refactor and code quality improvements
+- Fix CODEOWNERS configuration
 
-[**SSD Nodes** - Affordable VPS hosting for self-hosters](https://ssdnodes.com/?utm_source=memos&utm_medium=sponsor)
-  
-<a href="https://ssdnodes.com/?utm_source=memos&utm_medium=sponsor" target="_blank" rel="noopener">
-  <img src="https://usememos.com/sponsors/ssd-nodes.svg" alt="SSD Nodes" height="72" />
-</a>
+## Quick start
 
-## Overview
-
-Memos is a privacy-first, self-hosted knowledge base for personal notes, team wikis, and knowledge management. Built with Go and React, it runs as a single binary with minimal resource usage.
-
-## Features
-
-- **Privacy-First** — Self-hosted on your infrastructure with zero telemetry, no tracking, and no ads.
-- **Markdown Native** — Full markdown support with plain text storage. Your data is always portable.
-- **Lightweight** — Single Go binary with a React frontend. Low memory footprint, starts in seconds.
-- **Easy to Deploy** — One-line Docker install. Supports SQLite, MySQL, and PostgreSQL.
-- **Developer-Friendly** — Full REST and gRPC APIs for integration with existing workflows.
-- **Clean Interface** — Minimal design with dark mode and mobile-responsive layout.
-
-## Quick Start
-
-### Docker (Recommended)
+### Docker (recommended)
 
 ```bash
 docker run -d \
   --name memos \
   -p 5230:5230 \
   -v ~/.memos:/var/opt/memos \
-  neosmemo/memos:stable
+  ghcr.io/albrtbc/memos:latest
 ```
 
-Open `http://localhost:5230` and start writing!
+### Docker Compose
 
-### Try the Live Demo
+```yaml
+services:
+  memos:
+    image: ghcr.io/albrtbc/memos:latest
+    container_name: memos
+    ports:
+      - 5230:5230
+    volumes:
+      - ~/.memos:/var/opt/memos
+    restart: unless-stopped
+```
 
-Don't want to install yet? Try our [live demo](https://demo.usememos.com/) first!
+```bash
+docker compose up -d
+```
 
-### Other Installation Methods
+Open `http://localhost:5230` and start writing.
 
-- **Docker Compose** - Recommended for production deployments
-- **Pre-built Binaries** - Available for Linux, macOS, and Windows
-- **Kubernetes** - Helm charts and manifests available
-- **Build from Source** - For development and customization
+## Deployment
 
-See our [installation guide](https://usememos.com/docs/deploy) for detailed instructions.
+This fork uses GitHub Actions to automatically build and push a Docker image to GitHub Container Registry (GHCR) on every push to `main`.
 
-## Contributing
+To deploy on your server:
 
-Contributions are welcome — bug reports, feature suggestions, pull requests, documentation, and translations.
+```bash
+# Pull the latest image
+docker pull ghcr.io/albrtbc/memos:latest
 
-- [Report bugs](https://github.com/usememos/memos/issues/new?template=bug_report.md)
-- [Suggest features](https://github.com/usememos/memos/issues/new?template=feature_request.md)
-- [Submit pull requests](https://github.com/usememos/memos/pulls)
-- [Improve documentation](https://github.com/usememos/memos/tree/main/docs)
-- [Help with translations](https://github.com/usememos/memos/tree/main/web/src/locales)
+# Restart the container
+docker compose up -d
+```
 
-## Sponsors
+To update, simply `docker compose pull && docker compose up -d`.
 
-Love Memos? [Sponsor us on GitHub](https://github.com/sponsors/usememos) to help keep the project growing!
+## Upstream
 
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=usememos/memos&type=Date)](https://star-history.com/#usememos/memos&Date)
+For documentation, feature requests, and community support for the base project, see [usememos.com](https://usememos.com).
 
 ## License
 
 Memos is open-source software licensed under the [MIT License](LICENSE).
-
-## Privacy Policy
-
-Memos is built with privacy as a core principle. As a self-hosted application, all your data stays on your infrastructure. There is no telemetry, no tracking, and no data collection. See our [Privacy Policy](https://usememos.com/privacy) for details.
-
----
-
-**[Website](https://usememos.com)** • **[Documentation](https://usememos.com/docs)** • **[Demo](https://demo.usememos.com/)** • **[Discord](https://discord.gg/tfPJa4UmAv)** • **[X/Twitter](https://x.com/usememos)**
-
-<a href="https://vercel.com/oss">
-  <img alt="Vercel OSS Program" src="https://vercel.com/oss/program-badge.svg" />
-</a>
