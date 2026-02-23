@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.28.0](https://github.com/albrtbc/memos/compare/v0.27.0...v0.28.0) (2026-02-23)
+
+
+### Features
+
+* auto-embed Reddit posts in memos ([a73569b](https://github.com/albrtbc/memos/commit/a73569bd3bea021d5a30f7769b5bd805a9eb1ee3))
+* auto-embed Twitter/X posts in memos ([e93c400](https://github.com/albrtbc/memos/commit/e93c40065a703e9bc3f6f75b4f8e90e495bd1449))
+* auto-embed YouTube links in memos and update CODEOWNERS ([500cf3c](https://github.com/albrtbc/memos/commit/500cf3c4c809a0fe7f3ca1cc4d00d33358a3c31a))
+* **ui:** move pin and edit actions to hover icons on memo header ([ce946c2](https://github.com/albrtbc/memos/commit/ce946c27943f99cb9fb045318e18f21db13c362c))
+
 ## [0.27.0](https://github.com/albrtbc/memos/compare/v0.26.2...v0.27.0) (2026-02-23)
 
 Custom fork based on [usememos/memos](https://github.com/usememos/memos) v0.26.2.
