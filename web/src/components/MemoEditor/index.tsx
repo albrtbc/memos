@@ -91,6 +91,11 @@ const MemoEditorImpl: React.FC<MemoEditorProps> = ({
         queryClient.invalidateQueries({ queryKey: userKeys.stats() }),
       ];
 
+      // If editing an existing memo, invalidate its detail query
+      if (memoName) {
+        invalidationPromises.push(queryClient.invalidateQueries({ queryKey: memoKeys.detail(memoName) }));
+      }
+
       // If this was a comment, also invalidate the comments query for the parent memo
       if (parentMemoName) {
         invalidationPromises.push(queryClient.invalidateQueries({ queryKey: memoKeys.comments(parentMemoName) }));
