@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.28.1](https://github.com/albrtbc/memos/compare/v0.28.0...v0.28.1) (2026-02-23)
+
+
+### Bug Fixes
+
+* **ci:** chain Docker and binary builds from Release Please ([b616005](https://github.com/albrtbc/memos/commit/b6160053231ab689e3329cff93ce58073da88ca2))
+
 ## [0.28.0](https://github.com/albrtbc/memos/compare/v0.27.0...v0.28.0) (2026-02-23)
 
 
