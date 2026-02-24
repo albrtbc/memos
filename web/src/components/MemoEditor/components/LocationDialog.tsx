@@ -1,4 +1,6 @@
-import { useCallback } from "react";
+import { LatLng } from "leaflet";
+import { LoaderIcon, SearchIcon } from "lucide-react";
+import { useCallback, useState } from "react";
 import { LocationPicker } from "@/components/map";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
@@ -8,6 +10,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { VisuallyHidden } from "@/components/ui/visually-hidden";
 import { useTranslate } from "@/utils/i18n";
 import type { LocationDialogProps } from "../types";
+
+const GEOCODING_SEARCH = {
+  endpoint: "https://nominatim.openstreetmap.org/search",
+  userAgent: "Memos/1.0 (https://github.com/usememos/memos)",
+} as const;
 
 const ZOOM_LOC_PREFIX = "memo-map-zoom:loc:";
 
@@ -32,6 +39,37 @@ export const LocationDialog = ({
 }: LocationDialogProps) => {
   const t = useTranslate();
   const { placeholder, position, latInput, lngInput } = state;
+
+  const [addressQuery, setAddressQuery] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
+
+  const handleAddressSearch = useCallback(async () => {
+    const query = addressQuery.trim();
+    if (!query) return;
+
+    setIsSearching(true);
+    try {
+      const url = `${GEOCODING_SEARCH.endpoint}?q=${encodeURIComponent(query)}&format=json&limit=1`;
+      const response = await fetch(url, {
+        headers: {
+          "User-Agent": GEOCODING_SEARCH.userAgent,
+          Accept: "application/json",
+        },
+      });
+
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+      const data = await response.json();
+      if (data.length > 0) {
+        const { lat, lon } = data[0];
+        onPositionChange(new LatLng(parseFloat(lat), parseFloat(lon)));
+      }
+    } catch (error) {
+      console.error("Failed to geocode address:", error);
+    } finally {
+      setIsSearching(false);
+    }
+  }, [addressQuery, onPositionChange]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -61,6 +99,29 @@ export const LocationDialog = ({
             />
           </div>
           <div className="w-full flex flex-col p-3 gap-3">
+            <div className="flex gap-2">
+              <Input
+                placeholder="Search address..."
+                value={addressQuery}
+                onChange={(e) => setAddressQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleAddressSearch();
+                  }
+                }}
+                className="h-9"
+              />
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-9 w-9 shrink-0"
+                onClick={handleAddressSearch}
+                disabled={isSearching || !addressQuery.trim()}
+              >
+                {isSearching ? <LoaderIcon className="size-4 animate-spin" /> : <SearchIcon className="size-4" />}
+              </Button>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="grid gap-1">
                 <Label htmlFor="memo-location-lat" className="text-xs uppercase tracking-wide text-muted-foreground">
