@@ -14,13 +14,14 @@ COPY . .
 
 # Please build frontend first, so that the static files are available.
 # Refer to `pnpm release` in package.json for the build command.
-ARG TARGETOS TARGETARCH VERSION COMMIT
+ARG TARGETOS TARGETARCH
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
+    VERSION=$(cat version.txt) && \
     CGO_ENABLED=0 GOOS=$TARGETOS GOARCH=$TARGETARCH \
     go build \
       -trimpath \
-      -ldflags="-s -w -extldflags '-static'" \
+      -ldflags="-s -w -extldflags '-static' -X github.com/usememos/memos/internal/version.Version=${VERSION}" \
       -tags netgo,osusergo \
       -o memos \
       ./cmd/memos

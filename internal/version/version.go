@@ -9,7 +9,7 @@ import (
 
 // Version is the service current released version.
 // Semantic versioning: https://semver.org/
-var Version = "0.34.0" // x-release-please-version
+var Version = "0.0.0-dev"
 
 func GetCurrentVersion() string {
 	return Version

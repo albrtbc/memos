@@ -170,10 +170,13 @@ jobs:
 
           mkdir -p build
 
+          # Read version from version.txt
+          VERSION=$(cat version.txt)
+
           # Build static binary with optimizations
           go build \
             -trimpath \
-            -ldflags="-s -w -extldflags '-static'" \
+            -ldflags="-s -w -extldflags '-static' -X github.com/usememos/memos/internal/version.Version=${VERSION}" \
             -tags netgo,osusergo \
             -o "build/${OUTPUT_NAME}" \
             ./cmd/memos
