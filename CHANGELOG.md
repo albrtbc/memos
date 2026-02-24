@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.29.0](https://github.com/albrtbc/memos/compare/v0.28.2...v0.29.0) (2026-02-24)
+
+
+### Features
+
+* add Ctrl+M global shortcut to focus memo editor ([3410fea](https://github.com/albrtbc/memos/commit/3410feae84568a9f1c077b8072a2737d5fd4e111))
+* **ui:** style hashtags as rounded pill chips in memo content ([591c631](https://github.com/albrtbc/memos/commit/591c63154a7d40d3c40f0826c79f71e2de837b24))
+
 ## [0.28.2](https://github.com/albrtbc/memos/compare/v0.28.1...v0.28.2) (2026-02-23)
 
 
