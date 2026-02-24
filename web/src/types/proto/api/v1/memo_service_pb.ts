@@ -267,6 +267,13 @@ export type Location = Message<"memos.api.v1.Location"> & {
    * @generated from field: double longitude = 3;
    */
   longitude: number;
+
+  /**
+   * The altitude of the location in meters above sea level.
+   *
+   * @generated from field: double altitude = 4;
+   */
+  altitude: number;
 };
 
 /**

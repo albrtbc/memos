@@ -413,7 +413,9 @@ type Location struct {
 	// The latitude of the location.
 	Latitude float64 `protobuf:"fixed64,2,opt,name=latitude,proto3" json:"latitude,omitempty"`
 	// The longitude of the location.
-	Longitude     float64 `protobuf:"fixed64,3,opt,name=longitude,proto3" json:"longitude,omitempty"`
+	Longitude float64 `protobuf:"fixed64,3,opt,name=longitude,proto3" json:"longitude,omitempty"`
+	// The altitude of the location in meters above sea level.
+	Altitude      float64 `protobuf:"fixed64,4,opt,name=altitude,proto3" json:"altitude,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -465,6 +467,13 @@ func (x *Location) GetLatitude() float64 {
 func (x *Location) GetLongitude() float64 {
 	if x != nil {
 		return x.Longitude
+	}
+	return 0
+}
+
+func (x *Location) GetAltitude() float64 {
+	if x != nil {
+		return x.Altitude
 	}
 	return 0
 }

@@ -155,6 +155,7 @@ type MemoPayload_Location struct {
 	Placeholder   string                 `protobuf:"bytes,1,opt,name=placeholder,proto3" json:"placeholder,omitempty"`
 	Latitude      float64                `protobuf:"fixed64,2,opt,name=latitude,proto3" json:"latitude,omitempty"`
 	Longitude     float64                `protobuf:"fixed64,3,opt,name=longitude,proto3" json:"longitude,omitempty"`
+	Altitude      float64                `protobuf:"fixed64,4,opt,name=altitude,proto3" json:"altitude,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -206,6 +207,13 @@ func (x *MemoPayload_Location) GetLatitude() float64 {
 func (x *MemoPayload_Location) GetLongitude() float64 {
 	if x != nil {
 		return x.Longitude
+	}
+	return 0
+}
+
+func (x *MemoPayload_Location) GetAltitude() float64 {
+	if x != nil {
+		return x.Altitude
 	}
 	return 0
 }

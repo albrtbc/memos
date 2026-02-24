@@ -5,4 +5,5 @@ export interface LocationState {
   position?: LatLng;
   latInput: string;
   lngInput: string;
+  altInput: string;
 }

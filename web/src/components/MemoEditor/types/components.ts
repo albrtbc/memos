@@ -61,7 +61,7 @@ export interface LocationDialogProps {
   state: LocationState;
   locationInitialized: boolean;
   onPositionChange: (position: LatLng) => void;
-  onUpdateCoordinate: (type: "lat" | "lng", value: string) => void;
+  onUpdateCoordinate: (type: "lat" | "lng" | "alt", value: string) => void;
   onPlaceholderChange: (placeholder: string) => void;
   onCancel: () => void;
   onConfirm: () => void;

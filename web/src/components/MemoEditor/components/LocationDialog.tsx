@@ -38,7 +38,7 @@ export const LocationDialog = ({
   onConfirm,
 }: LocationDialogProps) => {
   const t = useTranslate();
-  const { placeholder, position, latInput, lngInput } = state;
+  const { placeholder, position, latInput, lngInput, altInput } = state;
 
   const [addressQuery, setAddressQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
@@ -122,7 +122,7 @@ export const LocationDialog = ({
                 {isSearching ? <LoaderIcon className="size-4 animate-spin" /> : <SearchIcon className="size-4" />}
               </Button>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               <div className="grid gap-1">
                 <Label htmlFor="memo-location-lat" className="text-xs uppercase tracking-wide text-muted-foreground">
                   Lat
@@ -152,6 +152,20 @@ export const LocationDialog = ({
                   max="180"
                   value={lngInput}
                   onChange={(e) => onUpdateCoordinate("lng", e.target.value)}
+                  className="h-9"
+                />
+              </div>
+              <div className="grid gap-1">
+                <Label htmlFor="memo-location-alt" className="text-xs uppercase tracking-wide text-muted-foreground">
+                  Alt (m)
+                </Label>
+                <Input
+                  id="memo-location-alt"
+                  placeholder="Alt"
+                  type="number"
+                  step="any"
+                  value={altInput}
+                  onChange={(e) => onUpdateCoordinate("alt", e.target.value)}
                   className="h-9"
                 />
               </div>

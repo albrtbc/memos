@@ -239,6 +239,9 @@ message Location {
 
   // The longitude of the location.
   double longitude = 3 [(google.api.field_behavior) = OPTIONAL];
+
+  // The altitude of the location in meters above sea level.
+  double altitude = 4 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message CreateMemoRequest {

@@ -8,9 +8,10 @@ export const useLocation = (initialLocation?: Location) => {
   const [locationInitialized, setLocationInitialized] = useState(false);
   const [state, setState] = useState<LocationState>({
     placeholder: initialLocation?.placeholder || "",
-    position: initialLocation ? new LatLng(initialLocation.latitude, initialLocation.longitude) : undefined,
+    position: initialLocation ? new LatLng(initialLocation.latitude, initialLocation.longitude, initialLocation.altitude || undefined) : undefined,
     latInput: initialLocation ? String(initialLocation.latitude) : "",
     lngInput: initialLocation ? String(initialLocation.longitude) : "",
+    altInput: initialLocation?.altitude ? String(initialLocation.altitude) : "",
   });
 
   const updatePosition = (position?: LatLng) => {
@@ -19,6 +20,7 @@ export const useLocation = (initialLocation?: Location) => {
       position,
       latInput: position ? String(position.lat) : "",
       lngInput: position ? String(position.lng) : "",
+      altInput: position?.alt != null ? String(position.alt) : prev.altInput,
     }));
   };
 
@@ -27,12 +29,16 @@ export const useLocation = (initialLocation?: Location) => {
     updatePosition(position);
   };
 
-  const updateCoordinate = (type: "lat" | "lng", value: string) => {
+  const updateCoordinate = (type: "lat" | "lng" | "alt", value: string) => {
+    if (type === "alt") {
+      setState((prev) => ({ ...prev, altInput: value }));
+      return;
+    }
     setState((prev) => ({ ...prev, [type === "lat" ? "latInput" : "lngInput"]: value }));
     const num = parseFloat(value);
     const isValid = type === "lat" ? !isNaN(num) && num >= -90 && num <= 90 : !isNaN(num) && num >= -180 && num <= 180;
     if (isValid && state.position) {
-      updatePosition(type === "lat" ? new LatLng(num, state.position.lng) : new LatLng(state.position.lat, num));
+      updatePosition(type === "lat" ? new LatLng(num, state.position.lng, state.position.alt) : new LatLng(state.position.lat, num, state.position.alt));
     }
   };
 
@@ -46,6 +52,7 @@ export const useLocation = (initialLocation?: Location) => {
       position: undefined,
       latInput: "",
       lngInput: "",
+      altInput: "",
     });
     setLocationInitialized(false);
   };
@@ -54,9 +61,11 @@ export const useLocation = (initialLocation?: Location) => {
     if (!state.position || !state.placeholder.trim()) {
       return undefined;
     }
+    const alt = parseFloat(state.altInput);
     return create(LocationSchema, {
       latitude: state.position.lat,
       longitude: state.position.lng,
+      altitude: !isNaN(alt) ? alt : 0,
       placeholder: state.placeholder,
     });
   };

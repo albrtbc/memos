@@ -78,7 +78,9 @@ const InsertMenu = (props: InsertMenuProps) => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
-            location.handlePositionChange(new LatLng(position.coords.latitude, position.coords.longitude));
+            location.handlePositionChange(
+              new LatLng(position.coords.latitude, position.coords.longitude, position.coords.altitude ?? undefined),
+            );
           },
           (error) => {
             console.error("Geolocation error:", error);
