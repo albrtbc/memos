@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.30.0](https://github.com/albrtbc/memos/compare/v0.29.0...v0.30.0) (2026-02-24)
+
+
+### Features
+
+* embed inline Leaflet map for memo locations with per-memo zoom persistence ([1776143](https://github.com/albrtbc/memos/commit/1776143ef351ad2cd3f7a93b0c65f9987b06edc8))
+
 ## [0.29.0](https://github.com/albrtbc/memos/compare/v0.28.2...v0.29.0) (2026-02-24)
 
 
