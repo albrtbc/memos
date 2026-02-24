@@ -6,7 +6,9 @@
       "bump-minor-pre-major": true,
       "changelog-path": "CHANGELOG.md",
       "include-component-in-tag": false,
-      "extra-files": []
+      "extra-files": [
+        "internal/version/version.go"
+      ]
     }
   }
 }
