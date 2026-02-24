@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.32.0](https://github.com/albrtbc/memos/compare/v0.31.0...v0.32.0) (2026-02-24)
+
+
+### Features
+
+* add altitude support to location across API, store and frontend ([05f43a6](https://github.com/albrtbc/memos/commit/05f43a6e70266351003880c975cd9596bc35f17c))
+
 ## [0.31.0](https://github.com/albrtbc/memos/compare/v0.30.0...v0.31.0) (2026-02-24)
 
 
