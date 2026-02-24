@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.34.1](https://github.com/albrtbc/memos/compare/v0.34.0...v0.34.1) (2026-02-24)
+
+
+### Bug Fixes
+
+* add version.txt required by release-please simple release type ([9c9e616](https://github.com/albrtbc/memos/commit/9c9e61619f1ac938bade4388a1471e96de7985ae))
+* sync server version with release-please ([e42a7c8](https://github.com/albrtbc/memos/commit/e42a7c889ed635a3fb40469c63a3d7090e5396b9))
+* use explicit generic updater for version.go in release-please ([12942ff](https://github.com/albrtbc/memos/commit/12942ff986e0496cc000b907902eb01178e79520))
+
 ## [0.34.0](https://github.com/albrtbc/memos/compare/v0.33.0...v0.34.0) (2026-02-24)
 
 
