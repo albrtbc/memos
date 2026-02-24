@@ -27,8 +27,8 @@ export const EditorToolbar: FC<EditorToolbarProps> = ({ editorRef, onSave, onCan
   };
 
   return (
-    <div className="w-full flex flex-row justify-between items-center mb-2">
-      <div className="flex flex-row justify-start items-center">
+    <div className="w-full flex flex-row flex-wrap justify-between items-center mb-2 gap-1">
+      <div className="flex flex-row justify-start items-center min-w-0">
         <InsertMenu
           editorRef={editorRef}
           isUploading={state.ui.isLoading.uploading}
@@ -39,7 +39,7 @@ export const EditorToolbar: FC<EditorToolbarProps> = ({ editorRef, onSave, onCan
         />
       </div>
 
-      <div className="flex flex-row justify-end items-center gap-2">
+      <div className="flex flex-row justify-end items-center gap-2 min-w-0 ml-auto">
         <VisibilitySelector value={state.metadata.visibility} onChange={handleVisibilityChange} />
 
         {onCancel && (
