@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.34.2](https://github.com/albrtbc/memos/compare/v0.34.1...v0.34.2) (2026-02-24)
+
+
+### Bug Fixes
+
+* **web:** add TikTok and Instagram URL embeds ([92478ac](https://github.com/albrtbc/memos/commit/92478accecbae0d97df971f8fbd8b691094e93a1))
+
 ## [0.34.1](https://github.com/albrtbc/memos/compare/v0.34.0...v0.34.1) (2026-02-24)
 
 
