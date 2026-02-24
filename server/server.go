@@ -3,9 +3,12 @@ package server
 import (
 	"context"
 	"fmt"
+	"io"
 	"log/slog"
 	"net"
 	"net/http"
+	"net/url"
+	"regexp"
 	"runtime"
 	"time"
 
@@ -59,6 +62,39 @@ func NewServer(ctx context.Context, profile *profile.Profile, store *store.Store
 	// Register healthz endpoint.
 	echoServer.GET("/healthz", func(c *echo.Context) error {
 		return c.String(http.StatusOK, "Service ready.")
+	})
+
+	// Twitter syndication proxy — bypasses CORS restriction on cdn.syndication.twimg.com.
+	tweetIDPattern := regexp.MustCompile(`^\d{1,20}$`)
+	echoServer.GET("/api/twitter/tweet", func(c *echo.Context) error {
+		id := c.QueryParam("id")
+		if !tweetIDPattern.MatchString(id) {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "invalid id"})
+		}
+
+		endpoint, _ := url.Parse("https://cdn.syndication.twimg.com/tweet-result")
+		q := endpoint.Query()
+		q.Set("id", id)
+		q.Set("lang", "en")
+		if token := c.QueryParam("token"); token != "" {
+			q.Set("token", token)
+		}
+		endpoint.RawQuery = q.Encode()
+
+		client := &http.Client{Timeout: 5 * time.Second}
+		resp, err := client.Get(endpoint.String())
+		if err != nil {
+			return c.JSON(http.StatusBadGateway, map[string]string{"error": "upstream request failed"})
+		}
+		defer resp.Body.Close()
+
+		body, err := io.ReadAll(io.LimitReader(resp.Body, 512*1024))
+		if err != nil {
+			return c.JSON(http.StatusBadGateway, map[string]string{"error": "read failed"})
+		}
+
+		c.Response().Header().Set("Cache-Control", "public, max-age=300")
+		return c.JSONBlob(resp.StatusCode, body)
 	})
 
 	// Serve frontend static files.

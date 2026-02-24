@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import type { ReactMarkdownProps } from "./types";
+import { TwitterLiteEmbed } from "./TwitterLiteEmbed";
 
 interface LinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement>, ReactMarkdownProps {
   children: React.ReactNode;
@@ -23,43 +24,6 @@ const TWITTER_RE = /^https?:\/\/(?:www\.)?(?:twitter\.com|x\.com)\/\w+\/status\/
 function getTwitterTweetId(url: string): string | null {
   const match = url.match(TWITTER_RE);
   return match ? match[1] : null;
-}
-
-let twttrLoadPromise: Promise<void> | null = null;
-
-function loadTwitterWidgets(): Promise<void> {
-  if (twttrLoadPromise) return twttrLoadPromise;
-  twttrLoadPromise = new Promise<void>((resolve) => {
-    if ((window as any).twttr) {
-      resolve();
-      return;
-    }
-    const script = document.createElement("script");
-    script.src = "https://platform.twitter.com/widgets.js";
-    script.async = true;
-    script.onload = () => resolve();
-    document.head.appendChild(script);
-  });
-  return twttrLoadPromise;
-}
-
-function TwitterEmbed({ tweetId }: { tweetId: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    loadTwitterWidgets().then(() => {
-      if (!cancelled && ref.current) {
-        ref.current.innerHTML = "";
-        (window as any).twttr?.widgets?.createTweet(tweetId, ref.current);
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [tweetId]);
-
-  return <div ref={ref} className="flex justify-center" />;
 }
 
 // --- TikTok ---
@@ -256,7 +220,7 @@ export const Link = ({ children, className, href, node: _node, ...props }: LinkP
 
     const tweetId = getTwitterTweetId(href);
     if (tweetId) {
-      return <TwitterEmbed tweetId={tweetId} />;
+      return <TwitterLiteEmbed tweetId={tweetId} url={href} />;
     }
 
     if (isRedditPost(href)) {
