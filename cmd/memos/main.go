@@ -164,8 +164,8 @@ func printGreetings(profile *profile.Profile) {
 	}
 
 	fmt.Println()
-	fmt.Printf("Documentation: %s\n", "https://usememos.com")
-	fmt.Printf("Source code: %s\n", "https://github.com/usememos/memos")
+	fmt.Printf("Documentation: %s\n", "https://github.com/albrtbc/memos")
+	fmt.Printf("Source code: %s\n", "https://github.com/albrtbc/memos")
 	fmt.Println("\nHappy note-taking!")
 }
 
