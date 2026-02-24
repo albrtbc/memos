@@ -48,7 +48,10 @@ export const Tag: React.FC<TagProps> = ({ "data-tag": dataTag, children, classNa
 
   return (
     <span
-      className={cn("inline-block w-auto text-primary cursor-pointer transition-colors hover:text-primary/80", className)}
+      className={cn(
+        "inline-flex items-center gap-0.5 h-5.5 px-1.5 bg-accent/50 hover:bg-accent border border-border/50 rounded-full text-xs font-medium text-foreground/80 cursor-pointer transition-all duration-200 hover:shadow-sm",
+        className,
+      )}
       data-tag={tag}
       {...props}
       onClick={handleTagClick}
