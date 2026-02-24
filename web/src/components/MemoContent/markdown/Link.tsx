@@ -62,6 +62,106 @@ function TwitterEmbed({ tweetId }: { tweetId: string }) {
   return <div ref={ref} className="flex justify-center" />;
 }
 
+// --- TikTok ---
+
+const TIKTOK_RE = /^https?:\/\/(?:(?:www|m|vm)\.)?tiktok\.com\//;
+
+function isTikTokUrl(url: string): boolean {
+  return TIKTOK_RE.test(url);
+}
+
+function TikTokEmbed({ url }: { url: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled && ref.current && data.html) {
+          ref.current.innerHTML = data.html;
+          const script = document.createElement("script");
+          script.src = "https://www.tiktok.com/embed.js";
+          script.async = true;
+          ref.current.appendChild(script);
+        }
+      })
+      .catch(() => {
+        if (!cancelled && ref.current) {
+          const link = document.createElement("a");
+          link.href = url;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.textContent = url;
+          ref.current.appendChild(link);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [url]);
+
+  return <div ref={ref} className="flex justify-center" />;
+}
+
+// --- Instagram ---
+
+const INSTAGRAM_RE = /^https?:\/\/(?:www\.)?instagram\.com\/(?:p|reel|reels)\/([A-Za-z0-9_-]+)/;
+
+function getInstagramPostId(url: string): string | null {
+  const match = url.match(INSTAGRAM_RE);
+  return match ? match[1] : null;
+}
+
+let instagramLoadPromise: Promise<void> | null = null;
+
+function loadInstagramEmbed(): Promise<void> {
+  if (instagramLoadPromise) return instagramLoadPromise;
+  instagramLoadPromise = new Promise<void>((resolve) => {
+    if ((window as any).instgrm) {
+      resolve();
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://www.instagram.com/embed.js";
+    script.async = true;
+    script.onload = () => resolve();
+    document.head.appendChild(script);
+  });
+  return instagramLoadPromise;
+}
+
+function InstagramEmbed({ url, postId }: { url: string; postId: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadInstagramEmbed().then(() => {
+      if (!cancelled && ref.current) {
+        ref.current.innerHTML = "";
+        const blockquote = document.createElement("blockquote");
+        blockquote.className = "instagram-media";
+        blockquote.setAttribute("data-instgrm-captioned", "");
+        blockquote.setAttribute("data-instgrm-permalink", url);
+        blockquote.setAttribute("data-instgrm-version", "14");
+        blockquote.style.maxWidth = "540px";
+        blockquote.style.width = "100%";
+        const link = document.createElement("a");
+        link.href = url;
+        blockquote.appendChild(link);
+        ref.current.appendChild(blockquote);
+
+        (window as any).instgrm?.Embeds?.process();
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [url, postId]);
+
+  return <div ref={ref} className="flex justify-center" />;
+}
+
 // --- Reddit ---
 
 const REDDIT_RE = /^https?:\/\/(?:www\.)?reddit\.com\/r\/\w+\/comments\/\w+/;
@@ -136,7 +236,7 @@ function isBarePastedLink(href: string, children: React.ReactNode): boolean {
 /**
  * Link component for external links
  * Opens in new tab with security attributes
- * Auto-embeds YouTube, Twitter/X, and Reddit URLs when pasted as bare links
+ * Auto-embeds YouTube, Twitter/X, Reddit, TikTok, and Instagram URLs when pasted as bare links
  */
 export const Link = ({ children, className, href, node: _node, ...props }: LinkProps) => {
   if (href && isBarePastedLink(href, children)) {
@@ -161,6 +261,15 @@ export const Link = ({ children, className, href, node: _node, ...props }: LinkP
 
     if (isRedditPost(href)) {
       return <RedditEmbed url={href} />;
+    }
+
+    if (isTikTokUrl(href)) {
+      return <TikTokEmbed url={href} />;
+    }
+
+    const igPostId = getInstagramPostId(href);
+    if (igPostId) {
+      return <InstagramEmbed url={href} postId={igPostId} />;
     }
   }
 
