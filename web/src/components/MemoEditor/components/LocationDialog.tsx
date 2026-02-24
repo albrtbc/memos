@@ -16,16 +16,6 @@ const GEOCODING_SEARCH = {
   userAgent: "Memos/1.0 (https://github.com/usememos/memos)",
 } as const;
 
-const ZOOM_LOC_PREFIX = "memo-map-zoom:loc:";
-
-function storeLocationZoom(lat: number, lng: number, zoom: number) {
-  try {
-    localStorage.setItem(`${ZOOM_LOC_PREFIX}${lat.toFixed(4)},${lng.toFixed(4)}`, String(zoom));
-  } catch {
-    // ignore
-  }
-}
-
 export const LocationDialog = ({
   open,
   onOpenChange,
@@ -34,11 +24,12 @@ export const LocationDialog = ({
   onPositionChange,
   onUpdateCoordinate,
   onPlaceholderChange,
+  onZoomChange,
   onCancel,
   onConfirm,
 }: LocationDialogProps) => {
   const t = useTranslate();
-  const { placeholder, position, latInput, lngInput, altInput } = state;
+  const { placeholder, position, latInput, lngInput, altInput, zoom } = state;
 
   const [addressQuery, setAddressQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
@@ -85,18 +76,7 @@ export const LocationDialog = ({
         </VisuallyHidden>
         <div className="flex flex-col">
           <div className="w-full h-64 overflow-hidden rounded-t-md bg-muted/30">
-            <LocationPicker
-              latlng={position}
-              onChange={onPositionChange}
-              onZoomChange={useCallback(
-                (zoom: number) => {
-                  if (position) {
-                    storeLocationZoom(position.lat, position.lng, zoom);
-                  }
-                },
-                [position],
-              )}
-            />
+            <LocationPicker latlng={position} initialZoom={zoom} onChange={onPositionChange} onZoomChange={onZoomChange} />
           </div>
           <div className="w-full flex flex-col p-3 gap-3">
             <div className="flex gap-2">

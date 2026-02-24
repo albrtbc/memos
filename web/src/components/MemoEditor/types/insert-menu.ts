@@ -6,4 +6,5 @@ export interface LocationState {
   latInput: string;
   lngInput: string;
   altInput: string;
+  zoom: number;
 }

@@ -12,6 +12,7 @@ export const useLocation = (initialLocation?: Location) => {
     latInput: initialLocation ? String(initialLocation.latitude) : "",
     lngInput: initialLocation ? String(initialLocation.longitude) : "",
     altInput: initialLocation?.altitude ? String(initialLocation.altitude) : "",
+    zoom: initialLocation?.zoom || 13,
   });
 
   const updatePosition = (position?: LatLng) => {
@@ -46,6 +47,10 @@ export const useLocation = (initialLocation?: Location) => {
     setState((prev) => ({ ...prev, placeholder }));
   };
 
+  const handleZoomChange = (zoom: number) => {
+    setState((prev) => ({ ...prev, zoom }));
+  };
+
   const reset = () => {
     setState({
       placeholder: "",
@@ -53,6 +58,7 @@ export const useLocation = (initialLocation?: Location) => {
       latInput: "",
       lngInput: "",
       altInput: "",
+      zoom: 13,
     });
     setLocationInitialized(false);
   };
@@ -67,6 +73,7 @@ export const useLocation = (initialLocation?: Location) => {
       longitude: state.position.lng,
       altitude: !isNaN(alt) ? alt : 0,
       placeholder: state.placeholder,
+      zoom: state.zoom,
     });
   };
 
@@ -76,6 +83,7 @@ export const useLocation = (initialLocation?: Location) => {
     handlePositionChange,
     updateCoordinate,
     setPlaceholder,
+    handleZoomChange,
     reset,
     getLocation,
   };

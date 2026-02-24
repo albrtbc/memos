@@ -415,7 +415,9 @@ type Location struct {
 	// The longitude of the location.
 	Longitude float64 `protobuf:"fixed64,3,opt,name=longitude,proto3" json:"longitude,omitempty"`
 	// The altitude of the location in meters above sea level.
-	Altitude      float64 `protobuf:"fixed64,4,opt,name=altitude,proto3" json:"altitude,omitempty"`
+	Altitude float64 `protobuf:"fixed64,4,opt,name=altitude,proto3" json:"altitude,omitempty"`
+	// The map zoom level for displaying the location.
+	Zoom          int32 `protobuf:"varint,5,opt,name=zoom,proto3" json:"zoom,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -474,6 +476,13 @@ func (x *Location) GetLongitude() float64 {
 func (x *Location) GetAltitude() float64 {
 	if x != nil {
 		return x.Altitude
+	}
+	return 0
+}
+
+func (x *Location) GetZoom() int32 {
+	if x != nil {
+		return x.Zoom
 	}
 	return 0
 }
@@ -1854,11 +1863,13 @@ const file_api_v1_memo_service_proto_rawDesc = "" +
 	"\x14has_incomplete_tasks\x18\x04 \x01(\bR\x12hasIncompleteTasks:7\xeaA4\n" +
 	"\x11memos.api.v1/Memo\x12\fmemos/{memo}\x1a\x04name*\x05memos2\x04memoB\t\n" +
 	"\a_parentB\v\n" +
-	"\t_location\"u\n" +
+	"\t_location\"\xaf\x01\n" +
 	"\bLocation\x12%\n" +
 	"\vplaceholder\x18\x01 \x01(\tB\x03\xe0A\x01R\vplaceholder\x12\x1f\n" +
 	"\blatitude\x18\x02 \x01(\x01B\x03\xe0A\x01R\blatitude\x12!\n" +
-	"\tlongitude\x18\x03 \x01(\x01B\x03\xe0A\x01R\tlongitude\"^\n" +
+	"\tlongitude\x18\x03 \x01(\x01B\x03\xe0A\x01R\tlongitude\x12\x1f\n" +
+	"\baltitude\x18\x04 \x01(\x01B\x03\xe0A\x01R\baltitude\x12\x17\n" +
+	"\x04zoom\x18\x05 \x01(\x05B\x03\xe0A\x01R\x04zoom\"^\n" +
 	"\x11CreateMemoRequest\x12+\n" +
 	"\x04memo\x18\x01 \x01(\v2\x12.memos.api.v1.MemoB\x03\xe0A\x02R\x04memo\x12\x1c\n" +
 	"\amemo_id\x18\x02 \x01(\tB\x03\xe0A\x01R\x06memoId\"\xed\x01\n" +

@@ -156,6 +156,7 @@ type MemoPayload_Location struct {
 	Latitude      float64                `protobuf:"fixed64,2,opt,name=latitude,proto3" json:"latitude,omitempty"`
 	Longitude     float64                `protobuf:"fixed64,3,opt,name=longitude,proto3" json:"longitude,omitempty"`
 	Altitude      float64                `protobuf:"fixed64,4,opt,name=altitude,proto3" json:"altitude,omitempty"`
+	Zoom          int32                  `protobuf:"varint,5,opt,name=zoom,proto3" json:"zoom,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -218,11 +219,18 @@ func (x *MemoPayload_Location) GetAltitude() float64 {
 	return 0
 }
 
+func (x *MemoPayload_Location) GetZoom() int32 {
+	if x != nil {
+		return x.Zoom
+	}
+	return 0
+}
+
 var File_store_memo_proto protoreflect.FileDescriptor
 
 const file_store_memo_proto_rawDesc = "" +
 	"\n" +
-	"\x10store/memo.proto\x12\vmemos.store\"\xa0\x03\n" +
+	"\x10store/memo.proto\x12\vmemos.store\"\xd1\x03\n" +
 	"\vMemoPayload\x12=\n" +
 	"\bproperty\x18\x01 \x01(\v2!.memos.store.MemoPayload.PropertyR\bproperty\x12=\n" +
 	"\blocation\x18\x02 \x01(\v2!.memos.store.MemoPayload.LocationR\blocation\x12\x12\n" +
@@ -231,11 +239,13 @@ const file_store_memo_proto_rawDesc = "" +
 	"\bhas_link\x18\x01 \x01(\bR\ahasLink\x12\"\n" +
 	"\rhas_task_list\x18\x02 \x01(\bR\vhasTaskList\x12\x19\n" +
 	"\bhas_code\x18\x03 \x01(\bR\ahasCode\x120\n" +
-	"\x14has_incomplete_tasks\x18\x04 \x01(\bR\x12hasIncompleteTasks\x1af\n" +
+	"\x14has_incomplete_tasks\x18\x04 \x01(\bR\x12hasIncompleteTasks\x1a\x96\x01\n" +
 	"\bLocation\x12 \n" +
 	"\vplaceholder\x18\x01 \x01(\tR\vplaceholder\x12\x1a\n" +
 	"\blatitude\x18\x02 \x01(\x01R\blatitude\x12\x1c\n" +
-	"\tlongitude\x18\x03 \x01(\x01R\tlongitudeB\x94\x01\n" +
+	"\tlongitude\x18\x03 \x01(\x01R\tlongitude\x12\x1a\n" +
+	"\baltitude\x18\x04 \x01(\x01R\baltitude\x12\x12\n" +
+	"\x04zoom\x18\x05 \x01(\x05R\x04zoomB\x94\x01\n" +
 	"\x0fcom.memos.storeB\tMemoProtoP\x01Z)github.com/usememos/memos/proto/gen/store\xa2\x02\x03MSX\xaa\x02\vMemos.Store\xca\x02\vMemos\\Store\xe2\x02\x17Memos\\Store\\GPBMetadata\xea\x02\fMemos::Storeb\x06proto3"
 
 var (

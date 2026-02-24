@@ -24,5 +24,6 @@ message MemoPayload {
     double latitude = 2;
     double longitude = 3;
     double altitude = 4;
+    int32 zoom = 5;
   }
 }

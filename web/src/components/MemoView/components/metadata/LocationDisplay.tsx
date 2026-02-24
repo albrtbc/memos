@@ -1,34 +1,11 @@
+import { create } from "@bufbuild/protobuf";
 import { LatLng } from "leaflet";
 import { ExternalLinkIcon, MapPinIcon } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useRef } from "react";
 import { LocationPicker } from "@/components/map";
+import { useUpdateMemo } from "@/hooks/useMemoQueries";
 import { cn } from "@/lib/utils";
-import type { Location } from "@/types/proto/api/v1/memo_service_pb";
-
-const ZOOM_MEMO_PREFIX = "memo-map-zoom:";
-const ZOOM_LOC_PREFIX = "memo-map-zoom:loc:";
-
-function getStoredZoom(memoName: string, lat: number, lng: number): number | undefined {
-  try {
-    // Per-memo zoom takes priority
-    const memoVal = localStorage.getItem(`${ZOOM_MEMO_PREFIX}${memoName}`);
-    if (memoVal) return Number(memoVal);
-    // Fallback to per-location zoom (saved from the picker dialog)
-    const locVal = localStorage.getItem(`${ZOOM_LOC_PREFIX}${lat.toFixed(4)},${lng.toFixed(4)}`);
-    if (locVal) return Number(locVal);
-    return undefined;
-  } catch {
-    return undefined;
-  }
-}
-
-function storeZoom(memoName: string, zoom: number) {
-  try {
-    localStorage.setItem(`${ZOOM_MEMO_PREFIX}${memoName}`, String(zoom));
-  } catch {
-    // ignore
-  }
-}
+import { LocationSchema, type Location } from "@/types/proto/api/v1/memo_service_pb";
 
 interface LocationDisplayProps {
   location?: Location;
@@ -43,13 +20,30 @@ const LocationDisplay = ({ location, memoName, className }: LocationDisplayProps
 
   const displayText = location.placeholder || `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}`;
   const googleMapsUrl = `https://www.google.com/maps?q=${location.latitude},${location.longitude}`;
-  const [initialZoom] = useState(() => getStoredZoom(memoName, location.latitude, location.longitude) ?? 13);
+  const initialZoom = location.zoom || 13;
+
+  const { mutateAsync: updateMemo } = useUpdateMemo();
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleZoomChange = useCallback(
     (zoom: number) => {
-      storeZoom(memoName, zoom);
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current);
+      }
+      debounceTimer.current = setTimeout(() => {
+        const updatedLocation = create(LocationSchema, {
+          placeholder: location.placeholder,
+          latitude: location.latitude,
+          longitude: location.longitude,
+          altitude: location.altitude,
+          zoom,
+        });
+        updateMemo({ update: { name: memoName, location: updatedLocation }, updateMask: ["location"] }).catch((err) =>
+          console.error("Failed to persist zoom:", err),
+        );
+      }, 500);
     },
-    [memoName],
+    [memoName, location, updateMemo],
   );
 
   return (

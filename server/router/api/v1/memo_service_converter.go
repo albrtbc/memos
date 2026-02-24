@@ -96,6 +96,7 @@ func convertLocationFromStore(location *storepb.MemoPayload_Location) *v1pb.Loca
 		Latitude:    location.Latitude,
 		Longitude:   location.Longitude,
 		Altitude:    location.Altitude,
+		Zoom:        location.Zoom,
 	}
 }
 
@@ -108,6 +109,7 @@ func convertLocationToStore(location *v1pb.Location) *storepb.MemoPayload_Locati
 		Latitude:    location.Latitude,
 		Longitude:   location.Longitude,
 		Altitude:    location.Altitude,
+		Zoom:        location.Zoom,
 	}
 }
 

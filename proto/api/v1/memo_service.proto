@@ -242,6 +242,9 @@ message Location {
 
   // The altitude of the location in meters above sea level.
   double altitude = 4 [(google.api.field_behavior) = OPTIONAL];
+
+  // The map zoom level for displaying the location.
+  int32 zoom = 5 [(google.api.field_behavior) = OPTIONAL];
 }
 
 message CreateMemoRequest {

@@ -254,6 +254,7 @@ const InsertMenu = (props: InsertMenuProps) => {
         onPositionChange={handlePositionChange}
         onUpdateCoordinate={location.updateCoordinate}
         onPlaceholderChange={location.setPlaceholder}
+        onZoomChange={location.handleZoomChange}
         onCancel={handleLocationCancel}
         onConfirm={handleLocationConfirm}
       />

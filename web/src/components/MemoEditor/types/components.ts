@@ -63,6 +63,7 @@ export interface LocationDialogProps {
   onPositionChange: (position: LatLng) => void;
   onUpdateCoordinate: (type: "lat" | "lng" | "alt", value: string) => void;
   onPlaceholderChange: (placeholder: string) => void;
+  onZoomChange: (zoom: number) => void;
   onCancel: () => void;
   onConfirm: () => void;
 }
