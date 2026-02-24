@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.31.0](https://github.com/albrtbc/memos/compare/v0.30.0...v0.31.0) (2026-02-24)
+
+
+### Features
+
+* add address search to location picker via Nominatim forward geocoding ([e7ebeb5](https://github.com/albrtbc/memos/commit/e7ebeb57370ea0f1477d92287a978c4cb05dc0ca))
+
+
+### Bug Fixes
+
+* **ui:** prevent editor toolbar buttons from overflowing in masonry mode ([f038fe8](https://github.com/albrtbc/memos/commit/f038fe8d88ee4c063a5af8e57ee6928daa0ff7e9))
+
 ## [0.30.0](https://github.com/albrtbc/memos/compare/v0.29.0...v0.30.0) (2026-02-24)
 
 
