@@ -1,5 +1,5 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { toast } from "react-hot-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import useCurrentUser from "@/hooks/useCurrentUser";
@@ -53,6 +53,14 @@ const MemoEditorImpl: React.FC<MemoEditorProps> = ({
 
   // Auto-save content to localStorage
   useAutoSave(state.content, currentUser?.name ?? "", cacheKey);
+
+  // Listen for global Ctrl+M focus request (only on the home editor)
+  useEffect(() => {
+    if (!listenForGlobalDrop) return;
+    const handleFocusRequest = () => editorRef.current?.focus();
+    window.addEventListener("focus-memo-editor", handleFocusRequest);
+    return () => window.removeEventListener("focus-memo-editor", handleFocusRequest);
+  }, [listenForGlobalDrop]);
 
   // Focus mode management with body scroll lock
   useFocusMode(state.ui.isFocusMode);

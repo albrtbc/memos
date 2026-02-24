@@ -1,13 +1,16 @@
 import { SearchIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useMemoFilterContext } from "@/contexts/MemoFilterContext";
+import useNavigateTo from "@/hooks/useNavigateTo";
 import { cn } from "@/lib/utils";
+import { Routes } from "@/router";
 import { useTranslate } from "@/utils/i18n";
 import MemoDisplaySettingMenu from "./MemoDisplaySettingMenu";
 
 const SearchBar = () => {
   const t = useTranslate();
   const { addFilter, clearAllFilters, hasActiveFilters } = useMemoFilterContext();
+  const navigateTo = useNavigateTo();
   const [queryText, setQueryText] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -55,8 +58,19 @@ const SearchBar = () => {
         e.preventDefault();
         inputRef.current?.focus();
       }
+
+      if ((e.ctrlKey || e.metaKey) && e.key === "m") {
+        e.preventDefault();
+        if (window.location.pathname !== Routes.ROOT) {
+          navigateTo(Routes.ROOT);
+        }
+        // Dispatch after a short delay to allow navigation to complete
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent("focus-memo-editor"));
+        }, 100);
+      }
     },
-    [queryText, hasActiveFilters, clearAllFilters],
+    [queryText, hasActiveFilters, clearAllFilters, navigateTo],
   );
 
   useEffect(() => {
