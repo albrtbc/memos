@@ -43,7 +43,7 @@ const MemoBody: React.FC<MemoBodyProps> = ({ compact, onContentClick, onContentD
         />
         <AttachmentList attachments={memo.attachments} />
         <RelationList relations={referencedMemos} currentMemoName={memo.name} parentPage={parentPage} />
-        {memo.location && <LocationDisplay location={memo.location} />}
+        {memo.location && <LocationDisplay location={memo.location} memoName={memo.name} />}
         <MemoReactionListView memo={memo} reactions={memo.reactions} />
       </div>
 

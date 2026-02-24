@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { LocationPicker } from "@/components/map";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
@@ -7,6 +8,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { VisuallyHidden } from "@/components/ui/visually-hidden";
 import { useTranslate } from "@/utils/i18n";
 import type { LocationDialogProps } from "../types";
+
+const ZOOM_LOC_PREFIX = "memo-map-zoom:loc:";
+
+function storeLocationZoom(lat: number, lng: number, zoom: number) {
+  try {
+    localStorage.setItem(`${ZOOM_LOC_PREFIX}${lat.toFixed(4)},${lng.toFixed(4)}`, String(zoom));
+  } catch {
+    // ignore
+  }
+}
 
 export const LocationDialog = ({
   open,
@@ -36,7 +47,18 @@ export const LocationDialog = ({
         </VisuallyHidden>
         <div className="flex flex-col">
           <div className="w-full h-64 overflow-hidden rounded-t-md bg-muted/30">
-            <LocationPicker latlng={position} onChange={onPositionChange} />
+            <LocationPicker
+              latlng={position}
+              onChange={onPositionChange}
+              onZoomChange={useCallback(
+                (zoom: number) => {
+                  if (position) {
+                    storeLocationZoom(position.lat, position.lng, zoom);
+                  }
+                },
+                [position],
+              )}
+            />
           </div>
           <div className="w-full flex flex-col p-3 gap-3">
             <div className="grid grid-cols-2 gap-3">

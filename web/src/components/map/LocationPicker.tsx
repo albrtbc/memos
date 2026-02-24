@@ -216,7 +216,18 @@ interface MapProps {
   readonly?: boolean;
   latlng?: LatLng;
   onChange?: (position: LatLng) => void;
+  initialZoom?: number;
+  onZoomChange?: (zoom: number) => void;
 }
+
+const ZoomTracker = ({ onZoomChange }: { onZoomChange: (zoom: number) => void }) => {
+  useMapEvents({
+    zoomend(e) {
+      onZoomChange(e.target.getZoom());
+    },
+  });
+  return null;
+};
 
 const DEFAULT_CENTER_LAT_LNG = new LatLng(48.8584, 2.2945);
 
@@ -227,7 +238,7 @@ const LeafletMap = (props: MapProps) => {
     <MapContainer
       className="w-full h-72"
       center={position}
-      zoom={13}
+      zoom={props.initialZoom ?? 13}
       scrollWheelZoom={false}
       zoomControl={false}
       attributionControl={false}
@@ -235,6 +246,7 @@ const LeafletMap = (props: MapProps) => {
       <ThemedTileLayer />
       <LocationMarker position={position} readonly={props.readonly} onChange={props.onChange ? props.onChange : () => {}} />
       <MapControls position={props.latlng} />
+      {props.onZoomChange && <ZoomTracker onZoomChange={props.onZoomChange} />}
       <MapCleanup />
     </MapContainer>
   );
