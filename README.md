@@ -87,8 +87,8 @@ This fork is part of a self-hosted ecosystem of compatible apps:
 | App | Description | Repository |
 |-----|-------------|------------|
 | **Memos** (this repo) | Server — API + web frontend | [albrtbc/memos](https://github.com/albrtbc/memos) |
-| **Memos Firefox/Chrome** | Browser extension | [albrtbc/memos-firefox](https://github.com/albrtbc/memos-firefox) |
-| **GS Memos** | Android app | [albrtbc/MoeMemosAndroid](https://github.com/albrtbc/MoeMemosAndroid) |
+| **Memos Firefox/Chrome** | Browser extension | [albrtbc/memos-browser-extension](https://github.com/albrtbc/memos-browser-extension) |
+| **GS Memos** | Android app | [albrtbc/memos-android](https://github.com/albrtbc/memos-android) |
 
 > **Note:** These apps are designed to work together and are not published on any store. Download releases directly from each repository's [Releases](https://github.com/albrtbc?tab=repositories) page.
 
