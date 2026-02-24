@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"io"
 	"log/slog"
@@ -118,6 +119,55 @@ func NewServer(ctx context.Context, profile *profile.Profile, store *store.Store
 		defer resp.Body.Close()
 
 		body, err := io.ReadAll(io.LimitReader(resp.Body, 512*1024))
+		if err != nil {
+			return c.JSON(http.StatusBadGateway, map[string]string{"error": "read failed"})
+		}
+
+		c.Response().Header().Set("Cache-Control", "public, max-age=300")
+		return c.JSONBlob(resp.StatusCode, body)
+	})
+
+	// Reddit JSON API proxy — bypasses CORS restriction on reddit.com.
+	redditURLPattern := regexp.MustCompile(`^https?://(www\.)?reddit\.com/r/\w+/comments/\w+`)
+	echoServer.GET("/api/reddit/post", func(c *echo.Context) error {
+		postURL := c.QueryParam("url")
+		if !redditURLPattern.MatchString(postURL) {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "invalid Reddit URL"})
+		}
+
+		// Normalize: strip query/fragment, use old.reddit.com (more permissive with bots), append .json
+		parsed, err := url.Parse(postURL)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "invalid URL"})
+		}
+		parsed.Host = "old.reddit.com"
+		parsed.RawQuery = ""
+		parsed.Fragment = ""
+		jsonURL := parsed.String() + ".json"
+
+		req, _ := http.NewRequest("GET", jsonURL, nil)
+		req.Header.Set("User-Agent", "memos/1.0 (compatible; +https://github.com/albrtbc/memos)")
+		req.Header.Set("Accept", "application/json")
+
+		// Force HTTP/1.1 — Reddit fingerprints Go's HTTP/2 SETTINGS and blocks bots.
+		client := &http.Client{
+			Timeout: 8 * time.Second,
+			Transport: &http.Transport{
+				TLSNextProto: make(map[string]func(authority string, c *tls.Conn) http.RoundTripper),
+			},
+			CheckRedirect: func(r *http.Request, via []*http.Request) error {
+				r.Header.Set("User-Agent", "memos/1.0 (compatible; +https://github.com/albrtbc/memos)")
+				r.Header.Set("Accept", "application/json")
+				return nil
+			},
+		}
+		resp, err := client.Do(req)
+		if err != nil {
+			return c.JSON(http.StatusBadGateway, map[string]string{"error": "upstream request failed"})
+		}
+		defer resp.Body.Close()
+
+		body, err := io.ReadAll(io.LimitReader(resp.Body, 1024*1024))
 		if err != nil {
 			return c.JSON(http.StatusBadGateway, map[string]string{"error": "read failed"})
 		}

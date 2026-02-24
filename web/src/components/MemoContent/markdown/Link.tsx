@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import type { ReactMarkdownProps } from "./types";
+import { RedditLiteEmbed } from "./RedditLiteEmbed";
 import { TikTokLiteEmbed } from "./TikTokLiteEmbed";
 import { TwitterLiteEmbed } from "./TwitterLiteEmbed";
 
@@ -101,57 +102,6 @@ function isRedditPost(url: string): boolean {
   return REDDIT_RE.test(url);
 }
 
-let redditLoadPromise: Promise<void> | null = null;
-
-function loadRedditWidgets(): Promise<void> {
-  if (redditLoadPromise) return redditLoadPromise;
-  redditLoadPromise = new Promise<void>((resolve) => {
-    const existing = document.querySelector('script[src*="embed.reddit.com/widgets.js"]');
-    if (existing) {
-      resolve();
-      return;
-    }
-    const script = document.createElement("script");
-    script.src = "https://embed.reddit.com/widgets.js";
-    script.async = true;
-    script.charset = "UTF-8";
-    script.onload = () => resolve();
-    document.head.appendChild(script);
-  });
-  return redditLoadPromise;
-}
-
-function RedditEmbed({ url }: { url: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    loadRedditWidgets().then(() => {
-      if (!cancelled && ref.current) {
-        ref.current.innerHTML = "";
-        const blockquote = document.createElement("blockquote");
-        blockquote.className = "reddit-embed-bq";
-        blockquote.setAttribute("data-embed-height", "500");
-        const link = document.createElement("a");
-        link.href = url;
-        blockquote.appendChild(link);
-        ref.current.appendChild(blockquote);
-
-        // Re-trigger Reddit's widget script to process the new blockquote
-        const script = document.createElement("script");
-        script.src = "https://embed.reddit.com/widgets.js";
-        script.async = true;
-        ref.current.appendChild(script);
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [url]);
-
-  return <div ref={ref} className="flex justify-center" />;
-}
-
 // --- Helpers ---
 
 function isBarePastedLink(href: string, children: React.ReactNode): boolean {
@@ -191,7 +141,7 @@ export const Link = ({ children, className, href, node: _node, ...props }: LinkP
     }
 
     if (isRedditPost(href)) {
-      return <RedditEmbed url={href} />;
+      return <RedditLiteEmbed url={href} />;
     }
 
     if (isTikTokUrl(href)) {
