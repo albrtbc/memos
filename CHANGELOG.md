@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.33.0](https://github.com/albrtbc/memos/compare/v0.32.0...v0.33.0) (2026-02-24)
+
+
+### Features
+
+* persist map zoom level on server via Location protobuf field ([58f2fae](https://github.com/albrtbc/memos/commit/58f2fae5f601227d2fbd5565297e87935c51592e))
+
 ## [0.32.0](https://github.com/albrtbc/memos/compare/v0.31.0...v0.32.0) (2026-02-24)
 
 
