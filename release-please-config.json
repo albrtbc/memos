@@ -7,7 +7,10 @@
       "changelog-path": "CHANGELOG.md",
       "include-component-in-tag": false,
       "extra-files": [
-        "internal/version/version.go"
+        {
+          "type": "generic",
+          "path": "internal/version/version.go"
+        }
       ]
     }
   }
