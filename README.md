@@ -80,9 +80,21 @@ docker compose up -d
 
 To update, simply `docker compose pull && docker compose up -d`.
 
+## Ecosystem
+
+This fork is part of a self-hosted ecosystem of compatible apps:
+
+| App | Description | Repository |
+|-----|-------------|------------|
+| **Memos** (this repo) | Server — API + web frontend | [albrtbc/memos](https://github.com/albrtbc/memos) |
+| **Memos Firefox/Chrome** | Browser extension | [albrtbc/memos-firefox](https://github.com/albrtbc/memos-firefox) |
+| **GS Memos** | Android app | [albrtbc/MoeMemosAndroid](https://github.com/albrtbc/MoeMemosAndroid) |
+
+> **Note:** These apps are designed to work together and are not published on any store. Download releases directly from each repository's [Releases](https://github.com/albrtbc?tab=repositories) page.
+
 ## Upstream
 
-For documentation, feature requests, and community support for the base project, see [usememos.com](https://usememos.com).
+This project is a fork of [usememos/memos](https://github.com/usememos/memos). For the original project's documentation and community, see the upstream repository.
 
 ## License
 
