@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.34.0](https://github.com/albrtbc/memos/compare/v0.33.0...v0.34.0) (2026-02-24)
+
+
+### Features
+
+* add MCP server with PAT authentication ([4b58f06](https://github.com/albrtbc/memos/commit/4b58f06e4b3e2c352d9e4161239ca9aa6c48b3e4))
+
+
+### Bug Fixes
+
+* **web:** use BroadcastChannel to sync token refreshes across tabs ([c9bf463](https://github.com/albrtbc/memos/commit/c9bf46343fc704d99e1cfa0706e14e80f190091d))
+
 ## [0.33.0](https://github.com/albrtbc/memos/compare/v0.32.0...v0.33.0) (2026-02-24)
 
 
