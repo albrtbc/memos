@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import type { ReactMarkdownProps } from "./types";
+import { TikTokLiteEmbed } from "./TikTokLiteEmbed";
 import { TwitterLiteEmbed } from "./TwitterLiteEmbed";
 
 interface LinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement>, ReactMarkdownProps {
@@ -32,40 +33,6 @@ const TIKTOK_RE = /^https?:\/\/(?:(?:www|m|vm)\.)?tiktok\.com\//;
 
 function isTikTokUrl(url: string): boolean {
   return TIKTOK_RE.test(url);
-}
-
-function TikTokEmbed({ url }: { url: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch(`https://www.tiktok.com/oembed?url=${encodeURIComponent(url)}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (!cancelled && ref.current && data.html) {
-          ref.current.innerHTML = data.html;
-          const script = document.createElement("script");
-          script.src = "https://www.tiktok.com/embed.js";
-          script.async = true;
-          ref.current.appendChild(script);
-        }
-      })
-      .catch(() => {
-        if (!cancelled && ref.current) {
-          const link = document.createElement("a");
-          link.href = url;
-          link.target = "_blank";
-          link.rel = "noopener noreferrer";
-          link.textContent = url;
-          ref.current.appendChild(link);
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [url]);
-
-  return <div ref={ref} className="flex justify-center" />;
 }
 
 // --- Instagram ---
@@ -228,7 +195,7 @@ export const Link = ({ children, className, href, node: _node, ...props }: LinkP
     }
 
     if (isTikTokUrl(href)) {
-      return <TikTokEmbed url={href} />;
+      return <TikTokLiteEmbed url={href} />;
     }
 
     const igPostId = getInstagramPostId(href);

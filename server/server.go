@@ -97,6 +97,35 @@ func NewServer(ctx context.Context, profile *profile.Profile, store *store.Store
 		return c.JSONBlob(resp.StatusCode, body)
 	})
 
+	// TikTok oEmbed proxy — bypasses CORS restriction on tiktok.com/oembed.
+	tiktokURLPattern := regexp.MustCompile(`^https?://([a-z0-9]+\.)?tiktok\.com/`)
+	echoServer.GET("/api/tiktok/oembed", func(c *echo.Context) error {
+		videoURL := c.QueryParam("url")
+		if !tiktokURLPattern.MatchString(videoURL) {
+			return c.JSON(http.StatusBadRequest, map[string]string{"error": "invalid TikTok URL"})
+		}
+
+		endpoint, _ := url.Parse("https://www.tiktok.com/oembed")
+		q := endpoint.Query()
+		q.Set("url", videoURL)
+		endpoint.RawQuery = q.Encode()
+
+		client := &http.Client{Timeout: 5 * time.Second}
+		resp, err := client.Get(endpoint.String())
+		if err != nil {
+			return c.JSON(http.StatusBadGateway, map[string]string{"error": "upstream request failed"})
+		}
+		defer resp.Body.Close()
+
+		body, err := io.ReadAll(io.LimitReader(resp.Body, 512*1024))
+		if err != nil {
+			return c.JSON(http.StatusBadGateway, map[string]string{"error": "read failed"})
+		}
+
+		c.Response().Header().Set("Cache-Control", "public, max-age=300")
+		return c.JSONBlob(resp.StatusCode, body)
+	})
+
 	// Serve frontend static files.
 	frontend.NewFrontendService(profile, store).Serve(ctx, echoServer)
 
