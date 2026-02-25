@@ -8,6 +8,7 @@ import AttachmentIcon from "@/components/AttachmentIcon";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import Empty from "@/components/Empty";
 import MobileHeader from "@/components/MobileHeader";
+import PreviewImageDialog from "@/components/PreviewImageDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
@@ -19,6 +20,7 @@ import useMediaQuery from "@/hooks/useMediaQuery";
 import i18n from "@/i18n";
 import { handleError } from "@/lib/error";
 import type { Attachment } from "@/types/proto/api/v1/attachment_service_pb";
+import { getAttachmentType, getAttachmentUrl } from "@/utils/attachment";
 import { useTranslate } from "@/utils/i18n";
 
 const PAGE_SIZE = 50;
@@ -50,12 +52,13 @@ const filterAttachments = (attachments: Attachment[], searchQuery: string): Atta
 
 interface AttachmentItemProps {
   attachment: Attachment;
+  onImageClick?: () => void;
 }
 
-const AttachmentItem = ({ attachment }: AttachmentItemProps) => (
+const AttachmentItem = ({ attachment, onImageClick }: AttachmentItemProps) => (
   <div className="w-24 sm:w-32 h-auto flex flex-col justify-start items-start">
     <div className="w-24 h-24 flex justify-center items-center sm:w-32 sm:h-32 border border-border overflow-clip rounded-xl cursor-pointer hover:shadow hover:opacity-80">
-      <AttachmentIcon attachment={attachment} strokeWidth={0.5} />
+      <AttachmentIcon attachment={attachment} strokeWidth={0.5} onImageClick={onImageClick} />
     </div>
     <div className="w-full max-w-full flex flex-row justify-between items-center mt-1 px-1">
       <p className="text-xs shrink text-muted-foreground truncate">{attachment.filename}</p>
@@ -79,6 +82,11 @@ const Attachments = () => {
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [nextPageToken, setNextPageToken] = useState("");
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [previewState, setPreviewState] = useState<{ open: boolean; urls: string[]; index: number }>({
+    open: false,
+    urls: [],
+    index: 0,
+  });
 
   // Memoized computed values
   const filteredAttachments = useMemo(() => filterAttachments(attachments, searchQuery), [attachments, searchQuery]);
@@ -88,6 +96,22 @@ const Attachments = () => {
   const unusedAttachments = useMemo(() => filteredAttachments.filter((attachment) => !attachment.memo), [filteredAttachments]);
 
   const groupedAttachments = useMemo(() => groupAttachmentsByDate(usedAttachments), [usedAttachments]);
+
+  const allImageUrls = useMemo(
+    () =>
+      filteredAttachments.filter((a) => getAttachmentType(a) === "image/*").map((a) => getAttachmentUrl(a)),
+    [filteredAttachments],
+  );
+
+  const openImagePreview = useCallback(
+    (url: string) => {
+      const index = allImageUrls.indexOf(url);
+      if (index !== -1) {
+        setPreviewState({ open: true, urls: allImageUrls, index });
+      }
+    },
+    [allImageUrls],
+  );
 
   // Fetch initial attachments
   useEffect(() => {
@@ -227,9 +251,17 @@ const Attachments = () => {
                               </span>
                             </div>
                             <div className="w-full max-w-[calc(100%-4rem)] sm:max-w-[calc(100%-6rem)] flex flex-row justify-start items-start gap-4 flex-wrap">
-                              {attachments.map((attachment) => (
-                                <AttachmentItem key={attachment.name} attachment={attachment} />
-                              ))}
+                              {attachments.map((attachment) => {
+                                const isImage = getAttachmentType(attachment) === "image/*";
+                                const url = getAttachmentUrl(attachment);
+                                return (
+                                  <AttachmentItem
+                                    key={attachment.name}
+                                    attachment={attachment}
+                                    onImageClick={isImage ? () => openImagePreview(url) : undefined}
+                                  />
+                                );
+                              })}
                             </div>
                           </div>
                         );
@@ -253,9 +285,17 @@ const Attachments = () => {
                                   </Button>
                                 </div>
                               </div>
-                              {unusedAttachments.map((attachment) => (
-                                <AttachmentItem key={attachment.name} attachment={attachment} />
-                              ))}
+                              {unusedAttachments.map((attachment) => {
+                                const isImage = getAttachmentType(attachment) === "image/*";
+                                const url = getAttachmentUrl(attachment);
+                                return (
+                                  <AttachmentItem
+                                    key={attachment.name}
+                                    attachment={attachment}
+                                    onImageClick={isImage ? () => openImagePreview(url) : undefined}
+                                  />
+                                );
+                              })}
                             </div>
                           </div>
                         </>
@@ -284,6 +324,13 @@ const Attachments = () => {
         cancelLabel={t("common.cancel")}
         onConfirm={handleDeleteUnusedAttachments}
         confirmVariant="destructive"
+      />
+
+      <PreviewImageDialog
+        open={previewState.open}
+        onOpenChange={(open) => setPreviewState((prev) => ({ ...prev, open }))}
+        imgUrls={previewState.urls}
+        initialIndex={previewState.index}
       />
     </section>
   );

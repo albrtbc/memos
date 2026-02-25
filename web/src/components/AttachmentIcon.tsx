@@ -20,10 +20,11 @@ interface Props {
   attachment: Attachment;
   className?: string;
   strokeWidth?: number;
+  onImageClick?: () => void;
 }
 
 const AttachmentIcon = (props: Props) => {
-  const { attachment } = props;
+  const { attachment, onImageClick } = props;
   const [previewImage, setPreviewImage] = useState<{ open: boolean; urls: string[]; index: number }>({
     open: false,
     urls: [],
@@ -39,7 +40,11 @@ const AttachmentIcon = (props: Props) => {
   };
 
   const handleImageClick = () => {
-    setPreviewImage({ open: true, urls: [attachmentUrl], index: 0 });
+    if (onImageClick) {
+      onImageClick();
+    } else {
+      setPreviewImage({ open: true, urls: [attachmentUrl], index: 0 });
+    }
   };
 
   if (resourceType === "image/*") {
@@ -63,12 +68,14 @@ const AttachmentIcon = (props: Props) => {
           />
         </SquareDiv>
 
-        <PreviewImageDialog
-          open={previewImage.open}
-          onOpenChange={(open) => setPreviewImage((prev) => ({ ...prev, open }))}
-          imgUrls={previewImage.urls}
-          initialIndex={previewImage.index}
-        />
+        {!onImageClick && (
+          <PreviewImageDialog
+            open={previewImage.open}
+            onOpenChange={(open) => setPreviewImage((prev) => ({ ...prev, open }))}
+            imgUrls={previewImage.urls}
+            initialIndex={previewImage.index}
+          />
+        )}
       </>
     );
   }
