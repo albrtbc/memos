@@ -28,6 +28,7 @@ interface TweetData {
   mediaUrls?: string[];
   hasVideo?: boolean;
   videoThumbnailUrls?: string[];
+  videoUrls?: string[];
   isVerified?: boolean;
   verifiedType?: string;
   createdAt?: string;
@@ -218,6 +219,26 @@ function extractFromSyndication(payload: Record<string, unknown>, fallbackUrl: s
   const mediaUrls: string[] = [];
   let hasVideo = false;
   const videoThumbnailUrls: string[] = [];
+  const videoUrls: string[] = [];
+
+  // Helper: extract best MP4 URL from video_info.variants
+  function extractBestMp4(videoInfo: unknown): string {
+    if (!isRecord(videoInfo)) return "";
+    const variants = Array.isArray(videoInfo.variants) ? videoInfo.variants : [];
+    let bestUrl = "";
+    let bestBitrate = -1;
+    for (const v of variants) {
+      if (!isRecord(v)) continue;
+      if (str(v.content_type) !== "video/mp4") continue;
+      const bitrate = typeof v.bitrate === "number" ? v.bitrate : 0;
+      const vUrl = str(v.url);
+      if (vUrl && bitrate > bestBitrate) {
+        bestBitrate = bitrate;
+        bestUrl = vUrl;
+      }
+    }
+    return bestUrl;
+  }
 
   // 1. Photos array
   const photos = Array.isArray(payload.photos) ? payload.photos : [];
@@ -238,6 +259,8 @@ function extractFromSyndication(payload: Record<string, unknown>, fallbackUrl: s
       if (type === "video" || type === "animated_gif") {
         hasVideo = true;
         if (!videoThumbnailUrls.includes(url)) videoThumbnailUrls.push(url);
+        const mp4 = extractBestMp4(media.video_info);
+        if (mp4) videoUrls.push(mp4);
       } else if (!mediaUrls.includes(url)) {
         mediaUrls.push(url);
       }
@@ -258,6 +281,8 @@ function extractFromSyndication(payload: Record<string, unknown>, fallbackUrl: s
         if (type === "video" || type === "animated_gif") {
           hasVideo = true;
           if (!videoThumbnailUrls.includes(url)) videoThumbnailUrls.push(url);
+          const mp4 = extractBestMp4(media.video_info);
+          if (mp4) videoUrls.push(mp4);
         } else if (!mediaUrls.includes(url)) {
           mediaUrls.push(url);
         }
@@ -271,6 +296,23 @@ function extractFromSyndication(payload: Record<string, unknown>, fallbackUrl: s
     hasVideo = true;
     const poster = str(payload.video.poster);
     if (poster && !videoThumbnailUrls.includes(poster)) videoThumbnailUrls.push(poster);
+    // Also try to extract MP4 from top-level video object
+    if (videoUrls.length === 0) {
+      const variants = Array.isArray(payload.video.variants) ? payload.video.variants : [];
+      let bestUrl = "";
+      let bestBitrate = -1;
+      for (const v of variants) {
+        if (!isRecord(v)) continue;
+        if (str(v.type || v.content_type) !== "video/mp4") continue;
+        const bitrate = typeof v.bitrate === "number" ? v.bitrate : 0;
+        const vUrl = str(v.src || v.url);
+        if (vUrl && bitrate > bestBitrate) {
+          bestBitrate = bitrate;
+          bestUrl = vUrl;
+        }
+      }
+      if (bestUrl) videoUrls.push(bestUrl);
+    }
   }
 
   const hasMedia = mediaUrls.length > 0 || hasVideo;
@@ -307,6 +349,7 @@ function extractFromSyndication(payload: Record<string, unknown>, fallbackUrl: s
     mediaUrls,
     hasVideo,
     videoThumbnailUrls,
+    videoUrls: videoUrls.length > 0 ? videoUrls : undefined,
     isVerified,
     verifiedType,
     createdAt,
@@ -431,6 +474,36 @@ function TweetSkeleton() {
 interface MediaItem {
   url: string;
   isVideo: boolean;
+  videoUrl?: string;
+}
+
+function VideoPlayer({ thumbnailUrl, videoUrl }: { thumbnailUrl: string; videoUrl: string }) {
+  const [playing, setPlaying] = useState(false);
+
+  if (!playing) {
+    return (
+      <div
+        className="relative cursor-pointer"
+        onClick={(e) => {
+          e.stopPropagation();
+          setPlaying(true);
+        }}
+      >
+        <img src={thumbnailUrl} alt="Video" loading="lazy" className="w-full max-h-[350px] object-cover" />
+        <PlayOverlay />
+      </div>
+    );
+  }
+
+  return (
+    <video
+      src={videoUrl}
+      controls
+      autoPlay
+      className="w-full max-h-[350px] bg-black"
+      onClick={(e) => e.stopPropagation()}
+    />
+  );
 }
 
 function MediaGrid({ items }: { items: MediaItem[] }) {
@@ -440,10 +513,13 @@ function MediaGrid({ items }: { items: MediaItem[] }) {
     const item = items[0];
     return (
       <div className="mx-4 mb-3 rounded-xl overflow-hidden">
-        <div className="relative">
-          <img src={item.url} alt={item.isVideo ? "Video" : "Photo"} loading="lazy" className="w-full max-h-[350px] object-cover" />
-          {item.isVideo && <PlayOverlay />}
-        </div>
+        {item.isVideo && item.videoUrl ? (
+          <VideoPlayer thumbnailUrl={item.url} videoUrl={item.videoUrl} />
+        ) : (
+          <div className="relative">
+            <img src={item.url} alt="Photo" loading="lazy" className="w-full max-h-[350px] object-cover" />
+          </div>
+        )}
       </div>
     );
   }
@@ -455,13 +531,18 @@ function MediaGrid({ items }: { items: MediaItem[] }) {
     >
       {items.map((item, i) => (
         <div key={i} className={cn("relative overflow-hidden", count === 3 && i === 0 && "row-span-2")}>
-          <img
-            src={item.url}
-            alt={item.isVideo ? `Video ${i + 1}` : `Photo ${i + 1}`}
-            loading="lazy"
-            className="w-full h-full object-cover"
-          />
-          {item.isVideo && <PlayOverlay />}
+          {item.isVideo && item.videoUrl ? (
+            <VideoPlayer thumbnailUrl={item.url} videoUrl={item.videoUrl} />
+          ) : (
+            <>
+              <img
+                src={item.url}
+                alt={`Photo ${i + 1}`}
+                loading="lazy"
+                className="w-full h-full object-cover"
+              />
+            </>
+          )}
         </div>
       ))}
     </div>
@@ -596,10 +677,11 @@ export function TwitterLiteEmbed({ tweetId, url }: { tweetId: string; url: strin
   // Build unified media list (photos + video thumbnails, max 4)
   const photoUrls = tweet.mediaUrls?.length ? tweet.mediaUrls : [];
   const videoThumbs = tweet.videoThumbnailUrls?.length ? tweet.videoThumbnailUrls : [];
+  const videoSrcs = tweet.videoUrls || [];
   const fallbackUrls = photoUrls.length === 0 && videoThumbs.length === 0 && tweet.thumbnailUrl ? [tweet.thumbnailUrl] : [];
   const allMedia: MediaItem[] = [
     ...(photoUrls.length > 0 ? photoUrls : fallbackUrls).map((u) => ({ url: u, isVideo: false })),
-    ...videoThumbs.map((u) => ({ url: u, isVideo: true })),
+    ...videoThumbs.map((u, i) => ({ url: u, isVideo: true, videoUrl: videoSrcs[i] })),
   ].slice(0, 4);
 
   // Build metrics
