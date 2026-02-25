@@ -477,16 +477,21 @@ interface MediaItem {
   videoUrl?: string;
 }
 
-function VideoPlayer({ thumbnailUrl, videoUrl }: { thumbnailUrl: string; videoUrl: string }) {
+function VideoPlayer({ thumbnailUrl, videoUrl, tweetUrl }: { thumbnailUrl: string; videoUrl: string; tweetUrl: string }) {
   const [playing, setPlaying] = useState(false);
+  const [failed, setFailed] = useState(false);
 
-  if (!playing) {
+  if (!playing || failed) {
     return (
       <div
         className="relative cursor-pointer"
         onClick={(e) => {
           e.stopPropagation();
-          setPlaying(true);
+          if (failed) {
+            window.open(tweetUrl, "_blank", "noopener,noreferrer");
+          } else {
+            setPlaying(true);
+          }
         }}
       >
         <img src={thumbnailUrl} alt="Video" loading="lazy" className="w-full max-h-[350px] object-cover" />
@@ -502,11 +507,16 @@ function VideoPlayer({ thumbnailUrl, videoUrl }: { thumbnailUrl: string; videoUr
       autoPlay
       className="w-full max-h-[350px] bg-black"
       onClick={(e) => e.stopPropagation()}
+      onError={() => {
+        setFailed(true);
+        setPlaying(false);
+        window.open(tweetUrl, "_blank", "noopener,noreferrer");
+      }}
     />
   );
 }
 
-function MediaGrid({ items }: { items: MediaItem[] }) {
+function MediaGrid({ items, tweetUrl }: { items: MediaItem[]; tweetUrl: string }) {
   const count = items.length;
 
   if (count === 1) {
@@ -514,7 +524,7 @@ function MediaGrid({ items }: { items: MediaItem[] }) {
     return (
       <div className="mx-4 mb-3 rounded-xl overflow-hidden">
         {item.isVideo && item.videoUrl ? (
-          <VideoPlayer thumbnailUrl={item.url} videoUrl={item.videoUrl} />
+          <VideoPlayer thumbnailUrl={item.url} videoUrl={item.videoUrl} tweetUrl={tweetUrl} />
         ) : (
           <div className="relative">
             <img src={item.url} alt="Photo" loading="lazy" className="w-full max-h-[350px] object-cover" />
@@ -532,16 +542,14 @@ function MediaGrid({ items }: { items: MediaItem[] }) {
       {items.map((item, i) => (
         <div key={i} className={cn("relative overflow-hidden", count === 3 && i === 0 && "row-span-2")}>
           {item.isVideo && item.videoUrl ? (
-            <VideoPlayer thumbnailUrl={item.url} videoUrl={item.videoUrl} />
+            <VideoPlayer thumbnailUrl={item.url} videoUrl={item.videoUrl} tweetUrl={tweetUrl} />
           ) : (
-            <>
-              <img
-                src={item.url}
-                alt={`Photo ${i + 1}`}
-                loading="lazy"
-                className="w-full h-full object-cover"
-              />
-            </>
+            <img
+              src={item.url}
+              alt={`Photo ${i + 1}`}
+              loading="lazy"
+              className="w-full h-full object-cover"
+            />
           )}
         </div>
       ))}
@@ -733,7 +741,7 @@ export function TwitterLiteEmbed({ tweetId, url }: { tweetId: string; url: strin
       />
 
       {/* Media grid */}
-      {allMedia.length > 0 && <MediaGrid items={allMedia} />}
+      {allMedia.length > 0 && <MediaGrid items={allMedia} tweetUrl={tweet.url} />}
 
       {/* Quoted tweet */}
       {tweet.quotedTweet?.text && <QuotedTweetCard data={tweet.quotedTweet} />}
