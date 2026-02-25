@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.34.4](https://github.com/albrtbc/memos/compare/v0.34.3...v0.34.4) (2026-02-25)
+
+
+### Bug Fixes
+
+* **web:** add swipe/arrow navigation to image preview lightbox ([7bba62d](https://github.com/albrtbc/memos/commit/7bba62de8457f1deab2c99616b5ade8b0b541c0a))
+* **web:** close MemoExplorerDrawer on filter interaction in mobile ([1e6f0b5](https://github.com/albrtbc/memos/commit/1e6f0b53f1349e765975fb3ede27fc345b4386d9))
+* **web:** show Edit and Pin icons on mobile viewports ([fa273c0](https://github.com/albrtbc/memos/commit/fa273c069c4585d9524066bb8180827ff4ea4d32))
+
 ## [0.34.3](https://github.com/albrtbc/memos/compare/v0.34.2...v0.34.3) (2026-02-25)
 
 
