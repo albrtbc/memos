@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.34.3](https://github.com/albrtbc/memos/compare/v0.34.2...v0.34.3) (2026-02-25)
+
+
+### Bug Fixes
+
+* update startup log URLs to point to fork repository ([b62a7c9](https://github.com/albrtbc/memos/commit/b62a7c9d10b3558963872ffc2aa27c8bd2e65e75))
+* **web:** add inline video playback to Twitter lite embed ([99b6a3c](https://github.com/albrtbc/memos/commit/99b6a3c8779f3a83d9a8c167fe5d9c628c2a954c))
+* **web:** handle video playback failure gracefully in Twitter lite embed ([0278bae](https://github.com/albrtbc/memos/commit/0278baee2182041c7dbf120cbe10f1a420aff754))
+* **web:** replace Reddit widgets.js with lightweight custom card ([89e9078](https://github.com/albrtbc/memos/commit/89e9078ac7d773b8c16e7610d28cff1e3c9ccd9a))
+* **web:** replace TikTok embed.js with lightweight custom card ([96cf927](https://github.com/albrtbc/memos/commit/96cf9277f166efdd24d5eceb932119781bf8373d))
+* **web:** replace Twitter widget embed with lightweight custom card ([242c8c2](https://github.com/albrtbc/memos/commit/242c8c2ca9dbd4a6c8bf93277cd03510599e5fcd))
+
 ## [0.34.2](https://github.com/albrtbc/memos/compare/v0.34.1...v0.34.2) (2026-02-24)
 
 
