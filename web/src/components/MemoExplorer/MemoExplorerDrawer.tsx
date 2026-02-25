@@ -20,7 +20,7 @@ const MemoExplorerDrawer = (props: Props) => {
 
   useEffect(() => {
     setOpen(false);
-  }, [location.pathname]);
+  }, [location.pathname, location.search]);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -33,7 +33,7 @@ const MemoExplorerDrawer = (props: Props) => {
         <SheetHeader>
           <SheetTitle />
         </SheetHeader>
-        <MemoExplorer className="px-4" context={context} features={features} statisticsData={statisticsData} tagCount={tagCount} />
+        <MemoExplorer className="px-4" context={context} features={features} statisticsData={statisticsData} tagCount={tagCount} onClose={() => setOpen(false)} />
       </SheetContent>
     </Sheet>
   );

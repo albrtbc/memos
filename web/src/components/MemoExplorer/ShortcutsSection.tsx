@@ -21,7 +21,7 @@ const getShortcutId = (name: string): string => {
   return parts.length === 4 ? parts[3] : "";
 };
 
-function ShortcutsSection() {
+function ShortcutsSection({ onClose }: { onClose?: () => void }) {
   const t = useTranslate();
   const { shortcuts, refetchSettings } = useAuth();
   const { shortcut: selectedShortcut, setShortcut } = useMemoFilterContext();
@@ -89,7 +89,10 @@ function ShortcutsSection() {
             >
               <span
                 className={cn("truncate cursor-pointer text-muted-foreground", selected && "text-primary font-medium")}
-                onClick={() => (selected ? setShortcut(undefined) : setShortcut(shortcutId))}
+                onClick={() => {
+                  selected ? setShortcut(undefined) : setShortcut(shortcutId);
+                  onClose?.();
+                }}
               >
                 {emoji && <span className="text-base mr-1">{emoji}</span>}
                 {title.trim()}
