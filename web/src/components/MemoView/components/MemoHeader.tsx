@@ -71,7 +71,7 @@ const MemoHeader: React.FC<MemoHeaderProps> = ({ showCreator, showVisibility, sh
             <button
               type="button"
               className={cn(
-                "hidden sm:group-hover:flex justify-center items-center rounded-md hover:opacity-80 cursor-pointer",
+                "flex sm:hidden sm:group-hover:flex justify-center items-center rounded-md hover:opacity-80 cursor-pointer",
                 reactionSelectorOpen && "flex!",
               )}
               onClick={onEdit}
@@ -82,7 +82,7 @@ const MemoHeader: React.FC<MemoHeaderProps> = ({ showCreator, showVisibility, sh
               <button
                 type="button"
                 className={cn(
-                  "hidden sm:group-hover:flex justify-center items-center rounded-md hover:opacity-80 cursor-pointer",
+                  "flex sm:hidden sm:group-hover:flex justify-center items-center rounded-md hover:opacity-80 cursor-pointer",
                   reactionSelectorOpen && "flex!",
                 )}
                 onClick={handleTogglePin}
