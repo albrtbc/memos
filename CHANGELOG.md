@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.35.0](https://github.com/albrtbc/memos/compare/v0.34.4...v0.35.0) (2026-02-26)
+
+
+### Features
+
+* **web:** add PWA support with service worker and web manifest ([5ba3cef](https://github.com/albrtbc/memos/commit/5ba3cef0995ba64b82826ed1d54509e23f2e45c3))
+
 ## [0.34.4](https://github.com/albrtbc/memos/compare/v0.34.3...v0.34.4) (2026-02-25)
 
 
