@@ -34,7 +34,7 @@ export default defineConfig({
       },
       workbox: {
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
-        globPatterns: ["**/*.{js,css,woff,woff2,png,webp,svg,ico}"],
+        globPatterns: ["**/*.{html,js,css,woff,woff2,png,webp,svg,ico}"],
         navigateFallback: "index.html",
         navigateFallbackDenylist: [/^\/api\//, /^\/memos\.api\.v1\//, /^\/file\//, /^\/healthz/],
         runtimeCaching: [
