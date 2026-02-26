@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.35.1](https://github.com/albrtbc/memos/compare/v0.35.0...v0.35.1) (2026-02-26)
+
+
+### Bug Fixes
+
+* **web:** include index.html in service worker precache ([e450861](https://github.com/albrtbc/memos/commit/e45086120986a48db24da90fb003272bfc2c272f))
+
 ## [0.35.0](https://github.com/albrtbc/memos/compare/v0.34.4...v0.35.0) (2026-02-26)
 
 
