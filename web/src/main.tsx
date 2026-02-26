@@ -24,6 +24,12 @@ import "katex/dist/katex.min.css";
 applyThemeEarly();
 applyLocaleEarly();
 
+if ("serviceWorker" in navigator) {
+  import("virtual:pwa-register").then(({ registerSW }) => {
+    registerSW({ immediate: false });
+  });
+}
+
 // Inner component that initializes contexts
 function AppInitializer({ children }: { children: React.ReactNode }) {
   const { isInitialized: authInitialized, initialize: initAuth, currentUser } = useAuth();
